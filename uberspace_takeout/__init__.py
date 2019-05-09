@@ -63,10 +63,7 @@ class TakeoutU7:
                     process = data
                     process(tar.extractfile(item.tar_path).read())
 
-    def takeout(self, username):
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H_%M_%S')
-        tar_path = 'takeout_{}_{}.tar.bz2'.format(username, timestamp)
-
+    def takeout(self, tar_path, username):
         with tarfile.open(tar_path, 'w:bz2') as tar:
             for item in self.get_items(username):
                 print('takeout: ' + item.description)

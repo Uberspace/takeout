@@ -1,7 +1,6 @@
 import argparse
 import datetime
 import getpass
-import sys
 
 from . import TakeoutU7
 
@@ -16,13 +15,13 @@ def main():
     p.add_argument('--tar-file', default=tar_path)
     args = p.parse_args()
 
-
     if args.action == 'takeout':
         TakeoutU7().takeout(args.tar_file, username)
     elif args.action == 'takein':
         TakeoutU7().takein(args.tar_file, username)
     else:
         raise NotImplementedError()
+
 
 if __name__ == '__main__':
     main()

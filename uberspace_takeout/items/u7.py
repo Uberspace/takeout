@@ -8,7 +8,7 @@ class U7Mixin(UberspaceVersionMixin):
     uberspace_version = 7
 
 
-class DomainItem(TakeoutItem, U7Mixin):
+class DomainItem(U7Mixin, TakeoutItem):
     kind = 'text'
     area = None
 
@@ -43,7 +43,7 @@ class MailDomains(DomainItem):
     tar_path = 'domains-mail'
 
 
-class FlagItem(TakeoutItem, U7Mixin):
+class FlagItem(U7Mixin, TakeoutItem):
     """
     A flag like "is the spamfilter enabled?". It provide a status/enable/disable
     interface via a uberspace sub-command. Provide the uberspace command without
@@ -97,7 +97,7 @@ class SpamfilterLogItem(FlagItem):
     tar_path = 'spamfilter-enabled'
 
 
-class ToolVersions(TakeoutItem, U7Mixin):
+class ToolVersions(U7Mixin, TakeoutItem):
     kind = 'text'
     description = 'Setting: Tool Versions'
     tar_path = 'tool-versions'

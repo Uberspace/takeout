@@ -6,7 +6,7 @@ class U6Mixin(UberspaceVersionMixin):
     uberspace_version = 6
 
 
-class DomainItem(TakeoutItem, U6Mixin):
+class DomainItem(U6Mixin, TakeoutItem):
     kind = 'text'
     flag = None
 

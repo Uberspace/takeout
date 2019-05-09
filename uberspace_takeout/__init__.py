@@ -25,6 +25,8 @@ class TakeoutU7:
         items.u7.PhpErrorLogItem,
         items.u7.SpamfilterLogItem,
         items.u7.ToolVersions,
+        items.u6.WebDomains,
+        items.u6.MailDomains,
     ]
 
     def filter_members(self, tar, prefix, strip_prefix=False):

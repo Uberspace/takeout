@@ -8,5 +8,5 @@ Import and export uberspaces to and from special .tar files.
 $ git clone https://github.com/Uberspace/takeout.git
 $ cd takeout
 $ pip install --user -e .
-$ uberspace-takeout $USER
+$ uberspace-takeout --help
 ```

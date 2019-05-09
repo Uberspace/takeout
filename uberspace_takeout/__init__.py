@@ -48,7 +48,9 @@ class TakeoutU7:
 
     def get_items(self, username):
         for item in self.takeout_menu:
-            yield item(username, socket.getfqdn())
+            instance = item(username, socket.getfqdn())
+            if instance.is_active():
+                yield instance
 
     def takein(self, tar_path, username):
         with tarfile.open(tar_path, 'r:bz2') as tar:

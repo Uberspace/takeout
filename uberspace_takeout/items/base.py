@@ -13,6 +13,9 @@ class TakeoutItem():
     def takein(self):
         raise NotImplementedError()
 
+    def is_active(self):
+        return True
+
 
 class PathItem(TakeoutItem):
     kind = 'path'

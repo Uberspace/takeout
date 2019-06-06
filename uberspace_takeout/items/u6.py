@@ -7,8 +7,8 @@ class U6Mixin(UberspaceVersionMixin):
 
 
 class DomainItem(U6Mixin, TakeoutItem):
-    kind = 'text'
     flag = None
+    storage_path = None
 
     def takeout(self):
         domains = utils.run_command(['uberspace-list-domains', self.flag])
@@ -16,27 +16,24 @@ class DomainItem(U6Mixin, TakeoutItem):
             self.username + '.' + self.hostname,
             '*.' + self.username + '.' + self.hostname,
         }
-        return '\n'.join(domains)
+        text = '\n'.join(domains)
+        self.storage.store_text(text, self.storage_path)
 
     def takein(self):
-        def process(data):
-            domains = (d for d in data.split('\n') if d)
-            for domain in domains:
-                utils.run_command(['uberspace-add-domain', self.flag, '-d', domain])
+        text = self.storage.unstore_text(self.storage_path)
 
-        return process
+        for domain in (d for d in text.split('\n') if d):
+            utils.run_command(['uberspace-add-domain', self.flag, '-d', domain])
 
 
 class WebDomains(DomainItem):
-    kind = 'text'
     description = 'Web Domains'
     flag = '-w'
-    tar_path = 'domains-web'
+    storage_path = 'domains-web'
 
 
 class MailDomains(DomainItem):
-    kind = 'text'
     description = 'Mail Domains'
     flag = '-m'
-    tar_path = 'domains-mail'
+    storage_path = 'domains-mail'
     # TODO: save namespaces?

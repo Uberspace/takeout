@@ -1,54 +1,44 @@
-import re
-
 from .. import utils
 from .base import PathItem, TakeoutItem
 
 
 class TakeoutMarker(TakeoutItem):
-    kind = 'text'
     description = 'Takeout Marker (internal)'
-    tar_path = '.uberspace_takeout'
 
     def takeout(self):
-        return ''
+        self.storage.store_text('.uberspace_takeout', 'uberspace_takeout')
 
     def takein(self):
-        def noop(data):
-            pass
+        content = self.storage.unstore_text('.uberspace_takeout')
 
-        # just assert existance
-        return noop
+        if content != 'uberspace_takeout':
+            raise Exception('input is not a takeout.')
 
 
 class Homedir(PathItem):
-    kind = 'path'
     description = 'Homedirectory'
-    tar_path = 'home/'
+    storage_path = 'home/'
 
     def path(self):
         return '/home/' + self.username
 
 
 class Www(PathItem):
-    kind = 'path'
     description = 'Documentroot'
-    tar_path = 'www/'
+    storage_path = 'www/'
 
     def path(self):
         return '/var/www/virtual/' + self.username
 
 
 class Cronjobs(TakeoutItem):
-    kind = 'text'
     description = 'Cronjobs'
-    tar_path = 'cronjobs'
 
     def takeout(self):
         cronjobs = utils.run_command(['crontab', '-l'])
-        return '\n'.join(cronjobs) + '\n'
+        text = '\n'.join(cronjobs) + '\n'
+        self.storage.store_text(text, 'cronjobs')
 
     def takein(self):
-        def process(data):
-            utils.run_command(['crontab', '-'], input_text=data)
-
-        return process
+        text = self.storage.unstore_text('cronjobs')
+        utils.run_command(['crontab', '-'], input_text=text)

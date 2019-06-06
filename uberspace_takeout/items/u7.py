@@ -9,7 +9,6 @@ class U7Mixin(UberspaceVersionMixin):
 
 
 class DomainItem(U7Mixin, TakeoutItem):
-    kind = 'text'
     area = None
 
     def takeout(self):
@@ -18,29 +17,24 @@ class DomainItem(U7Mixin, TakeoutItem):
             self.username + '.uber.space',
             self.username + '.' + self.hostname
         }
-        return '\n'.join(domains)
+        self.storage.store_text('\n'.join(domains), self.storage_path)
 
     def takein(self):
-        def process(data):
-            domains = (d for d in data.split('\n') if d)
-            for domain in domains:
-                utils.run_uberspace(self.area, 'domain', 'add', domain)
-
-        return process
+        text = self.storage.unstore_text(self.storage_path)
+        for domain in (d for d in text.split('\n') if d):
+            utils.run_uberspace(self.area, 'domain', 'add', domain)
 
 
 class WebDomains(DomainItem):
-    kind = 'text'
     description = 'Web Domains'
     area = 'web'
-    tar_path = 'domains-web'
+    storage_path = 'domains-web'
 
 
 class MailDomains(DomainItem):
-    kind = 'text'
     description = 'Mail Domains'
     area = 'mail'
-    tar_path = 'domains-mail'
+    storage_path = 'domains-mail'
 
 
 class FlagItem(U7Mixin, TakeoutItem):
@@ -49,7 +43,6 @@ class FlagItem(U7Mixin, TakeoutItem):
     interface via a uberspace sub-command. Provide the uberspace command without
     leading "uberspace" in `cmd` (e.g. ['web', 'log', 'access']).
     """
-    kind = 'text'
 
     def takeout(self):
         out = utils.run_uberspace(*(self.cmd + ['status']))
@@ -57,50 +50,49 @@ class FlagItem(U7Mixin, TakeoutItem):
             status = 'enable'
         else:
             status = 'disable'
-        return status
+
+        self.storage.store_text(status, self.storage_path)
 
     def takein(self):
-        def process(data):
-            if data not in ('enable', 'disable'):
-                raise Exception(
-                    'invalid "uberspace {}" value: {}, expected "enabled" or "disabled".'.format(
-                        ' '.join(self.cmd),
-                        data,
-                    )
-                )
-            utils.run_uberspace(*(self.cmd + [data]))
+        data = self.storage.unstore_text(self.storage_path)
 
-        return process
+        if data not in ('enable', 'disable'):
+            raise Exception(
+                'invalid "uberspace {}" value: {}, expected "enabled" or "disabled".'.format(
+                    ' '.join(self.cmd),
+                    data,
+                )
+            )
+
+        utils.run_uberspace(*(self.cmd + [data]))
 
 
 class AccessLogItem(FlagItem):
     description = 'Setting: Access-Log'
     cmd = ['web', 'log', 'access']
-    tar_path = 'log-access'
+    storage_path = 'log-access'
 
 
 class ApacheErrorLogItem(FlagItem):
     description = 'Setting: Apache-Error-Log'
     cmd = ['web', 'log', 'apache_error']
-    tar_path = 'log-apache_error'
+    storage_path = 'log-apache_error'
 
 
 class PhpErrorLogItem(FlagItem):
     description = 'Setting: PHP-Error-Log'
     cmd = ['web', 'log', 'php_error']
-    tar_path = 'log-php_error'
+    storage_path = 'log-php_error'
 
 
 class SpamfilterLogItem(FlagItem):
     description = 'Setting: Spamfilter'
     cmd = ['mail', 'spamfilter']
-    tar_path = 'spamfilter-enabled'
+    storage_path = 'spamfilter-enabled'
 
 
 class ToolVersions(U7Mixin, TakeoutItem):
-    kind = 'text'
     description = 'Setting: Tool Versions'
-    tar_path = 'tool-versions'
 
     def takeout(self):
         tools = utils.run_uberspace('tools', 'version', 'list')
@@ -110,12 +102,9 @@ class ToolVersions(U7Mixin, TakeoutItem):
             out = utils.run_uberspace('tools', 'version', 'show', tool)
             version = re.search(r"'([0-9\.]+)'", out[0]).groups()[0]
             dump += tool + '=' + version + '\n'
-        return dump
+        self.storage.store_text(dump, 'tool-versions')
 
     def takein(self):
-        def process(data):
-            tools = (l.split('=') for l in data.split('\n') if l)
-            for tool, version in tools:
-                utils.run_uberspace('tools', 'version', 'use', tool, version)
-
-        return process
+        text = self.storage.unstore_text('tool-versions')
+        for tool, version in (l.split('=') for l in text.split('\n') if l):
+            utils.run_uberspace('tools', 'version', 'use', tool, version)

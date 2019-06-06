@@ -1,15 +1,9 @@
 #!/opt/uberspace/python-venv/bin/python
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
-
-import datetime
 import socket
-import tarfile
 
 import uberspace_takeout.items as items
+import uberspace_takeout.storage as storage
 
 
 class TakeoutU7:
@@ -29,57 +23,20 @@ class TakeoutU7:
         items.u6.MailDomains,
     ]
 
-    def filter_members(self, tar, prefix, strip_prefix=False):
-        for m in tar.getmembers():
-            name = m.name
-
-            if not name or '..' in name or name.startswith('/') or name.startswith('./'):
-                raise Exception(
-                    'illegal member name in tar file: ' + name
-                )
-
-            if m.type not in (tarfile.REGTYPE, tarfile.SYMTYPE, tarfile.DIRTYPE):
-                raise Exception(
-                    'illegal member tpye in tar file: {} (must be file, dir, or symlink; is {}'.format(name, m.type)
-                )
-
-            if m.name.startswith(prefix):
-                if strip_prefix:
-                    m.name = m.name[len(prefix):]
-                yield m
-
-    def get_items(self, username):
+    def get_items(self, username, storage):
         for item in self.takeout_menu:
-            instance = item(username, socket.getfqdn())
+            instance = item(username, socket.getfqdn(), storage)
             if instance.is_active():
                 yield instance
 
     def takein(self, tar_path, username):
-        with tarfile.open(tar_path, 'r:bz2') as tar:
-            for item in self.get_items(username):
+        with storage.TarStorage(tar_path) as stor:
+            for item in self.get_items(username, stor):
                 print('takein: ' + item.description)
-                data = item.takein()
-
-                if item.kind == 'path':
-                    path = data
-                    tar.extractall(path, self.filter_members(tar, item.tar_path, strip_prefix=True))
-                elif item.kind == 'text':
-                    process = data
-                    process(tar.extractfile(item.tar_path).read())
+                item.takein()
 
     def takeout(self, tar_path, username):
-        with tarfile.open(tar_path, 'w:bz2') as tar:
-            for item in self.get_items(username):
+        with storage.TarStorage(tar_path) as stor:
+            for item in self.get_items(username, stor):
                 print('takeout: ' + item.description)
-                data = item.takeout()
-
-                if item.kind == 'path':
-                    tar.add(data, item.tar_path)
-                elif item.kind == 'text':
-                    data = StringIO(data)
-                    info = tarfile.TarInfo(item.tar_path)
-                    info.size = data.len
-                    info.mtime = int(datetime.datetime.now().strftime("%s"))
-                    tar.addfile(info, data)
-
-        return tar_path
+                item.takeout()

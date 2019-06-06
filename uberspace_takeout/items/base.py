@@ -2,13 +2,12 @@ import re
 
 
 class TakeoutItem():
-    kind = None
-    tar_path = None
     description = None
 
-    def __init__(self, username, hostname):
+    def __init__(self, username, hostname, storage):
         self.username = username
         self.hostname = hostname
+        self.storage = storage
 
     def takeout(self):
         raise NotImplementedError()
@@ -21,13 +20,13 @@ class TakeoutItem():
 
 
 class PathItem(TakeoutItem):
-    kind = 'path'
+    storage_path = None
 
     def takeout(self):
-        return self.path()
+        self.storage.store_directory(self.path(), self.storage_path)
 
     def takein(self):
-        return self.path()
+        self.storage.unstore_directory(self.storage_path, self.path())
 
 
 class UberspaceVersionMixin():

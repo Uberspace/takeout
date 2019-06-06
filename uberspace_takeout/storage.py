@@ -8,8 +8,12 @@ except ImportError:
 
 
 class Storage():
-    def __init__(self, destination):
+    def __init__(self, destination, mode):
+        if mode not in ('takein', 'takeout'):
+            raise Exception('Invalid mode {}, expected "takein" or "takeout".'.format(mode))
+
         self.destination = destination
+        self.mode = mode
 
     def __enter__(self):
         raise NotImplementedError()
@@ -39,7 +43,8 @@ class Storage():
 class TarStorage(Storage):
 
     def __enter__(self):
-        self.tar = tarfile.open(self.destination, 'w:bz2')
+        mode = 'w:bz2' if self.mode == 'takeout' else 'r:bz2'
+        self.tar = tarfile.open(self.destination, mode)
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):

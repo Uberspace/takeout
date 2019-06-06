@@ -30,13 +30,13 @@ class TakeoutU7:
                 yield instance
 
     def takein(self, tar_path, username):
-        with storage.TarStorage(tar_path) as stor:
+        with storage.TarStorage(tar_path, 'takein') as stor:
             for item in self.get_items(username, stor):
                 print('takein: ' + item.description)
                 item.takein()
 
     def takeout(self, tar_path, username):
-        with storage.TarStorage(tar_path) as stor:
+        with storage.TarStorage(tar_path, 'takeout') as stor:
             for item in self.get_items(username, stor):
                 print('takeout: ' + item.description)
                 item.takeout()

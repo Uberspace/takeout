@@ -6,7 +6,7 @@ class TakeoutMarker(TakeoutItem):
     description = 'Takeout Marker (internal)'
 
     def takeout(self):
-        self.storage.store_text('.uberspace_takeout', 'uberspace_takeout')
+        self.storage.store_text('uberspace_takeout', '.uberspace_takeout')
 
     def takein(self):
         content = self.storage.unstore_text('.uberspace_takeout')

@@ -13,7 +13,7 @@ class Storage():
         if mode not in ('takein', 'takeout'):
             raise Exception('Invalid mode {}, expected "takein" or "takeout".'.format(mode))
 
-        self.destination = destination
+        self.destination = str(destination)
         self.mode = mode
 
     def __enter__(self):
@@ -84,6 +84,7 @@ class TarStorage(Storage):
         return length
 
     def store_text(self, content, storage_path):
+        storage_path = str(storage_path)
         content = BytesIO(content.encode('utf-8'))
         info = tarfile.TarInfo(storage_path)
         info.size = self._len(content)
@@ -91,10 +92,13 @@ class TarStorage(Storage):
         self.tar.addfile(info, content)
 
     def unstore_text(self, storage_path):
+        storage_path = str(storage_path)
         return self.tar.extractfile(storage_path).read().decode('utf-8')
 
     def store_file(self, system_path, storage_path):
-        self.tar.add(system_path, storage_path)
+        storage_path = str(storage_path)
+        self.tar.add(str(system_path), storage_path)
 
     def unstore_file(self, storage_path, system_path):
+        storage_path = str(storage_path)
         self.tar.extractall(system_path, self.get_members_in(storage_path))

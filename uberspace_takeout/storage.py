@@ -1,10 +1,11 @@
 import datetime
 import tarfile
+import os
 
 try:
-    from StringIO import StringIO
+    from BytesIO import BytesIO
 except ImportError:
-    from io import StringIO
+    from io import BytesIO
 
 
 class Storage():
@@ -74,15 +75,23 @@ class TarStorage(Storage):
                 m.name = m.name[len(directory):]
                 yield m
 
+    @classmethod
+    def _len(cls, f):
+        old_position = f.tell()
+        f.seek(0, os.SEEK_END)
+        length = f.tell()
+        f.seek(old_position)
+        return length
+
     def store_text(self, content, storage_path):
-        content = StringIO(content)
+        content = BytesIO(content.encode('utf-8'))
         info = tarfile.TarInfo(storage_path)
-        info.size = content.len
+        info.size = self._len(content)
         info.mtime = int(datetime.datetime.now().strftime("%s"))
         self.tar.addfile(info, content)
 
     def unstore_text(self, storage_path):
-        return self.tar.extractfile(storage_path).read()
+        return self.tar.extractfile(storage_path).read().decode('utf-8')
 
     def store_file(self, system_path, storage_path):
         self.tar.add(system_path, storage_path)

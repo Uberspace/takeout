@@ -84,7 +84,7 @@ class TarStorage(Storage):
         return length
 
     def store_text(self, content, storage_path):
-        storage_path = str(storage_path)
+        storage_path = str(storage_path).lstrip('/')
         content = BytesIO(content.encode('utf-8'))
         info = tarfile.TarInfo(storage_path)
         info.size = self._len(content)
@@ -92,13 +92,13 @@ class TarStorage(Storage):
         self.tar.addfile(info, content)
 
     def unstore_text(self, storage_path):
-        storage_path = str(storage_path)
+        storage_path = str(storage_path).lstrip('/')
         return self.tar.extractfile(storage_path).read().decode('utf-8')
 
     def store_file(self, system_path, storage_path):
-        storage_path = str(storage_path)
+        storage_path = str(storage_path).lstrip('/')
         self.tar.add(str(system_path), storage_path)
 
     def unstore_file(self, storage_path, system_path):
-        storage_path = str(storage_path)
+        storage_path = str(storage_path).lstrip('/')
         self.tar.extractall(system_path, self.get_members_in(storage_path))

@@ -1,6 +1,5 @@
 import re
 
-from .. import utils
 from .base import TakeoutItem, UberspaceVersionMixin
 
 

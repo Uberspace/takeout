@@ -1,4 +1,3 @@
-from .. import utils
 from .base import PathItem, TakeoutItem
 
 

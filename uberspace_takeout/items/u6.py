@@ -1,4 +1,3 @@
-from .. import utils
 from .base import TakeoutItem, UberspaceVersionMixin
 
 
@@ -36,4 +35,3 @@ class MailDomains(DomainItem):
     description = 'Mail Domains'
     flag = '-m'
     storage_path = 'domains-mail'
-    # TODO: save namespaces?

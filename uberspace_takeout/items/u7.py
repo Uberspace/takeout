@@ -95,15 +95,14 @@ class ToolVersions(U7Mixin, TakeoutItem):
 
     def takeout(self):
         tools = utils.run_uberspace('tools', 'version', 'list')
-        dump = ''
+
         for tool in tools:
             tool = tool.lstrip('- ')
             out = utils.run_uberspace('tools', 'version', 'show', tool)
             version = re.search(r"'([0-9\.]+)'", out[0]).groups()[0]
-            dump += tool + '=' + version + '\n'
-        self.storage.store_text(dump, 'conf/tool-versions')
+            self.storage.store_text(version, 'conf/tool-version/' + tool)
 
     def takein(self):
-        text = self.storage.unstore_text('conf/tool-versions')
-        for tool, version in (l.split('=') for l in text.split('\n') if l):
+        for tool in self.storage.list_files('conf/tool-versions'):
+            version = self.storage.unstore_text('conf/tool-versions/' + tool)
             utils.run_uberspace('tools', 'version', 'use', tool, version)

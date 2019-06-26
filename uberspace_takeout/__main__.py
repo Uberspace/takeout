@@ -2,7 +2,7 @@ import argparse
 import datetime
 import getpass
 
-from . import TakeoutU7
+from . import Takeout
 
 
 def main():
@@ -21,9 +21,9 @@ def main():
         tar_path = '/dev/stdout'
 
     if args.action == 'takeout':
-        TakeoutU7().takeout(tar_path, username)
+        Takeout().takeout(tar_path, username)
     elif args.action == 'takein':
-        TakeoutU7().takein(tar_path, username)
+        Takeout().takein(tar_path, username)
     else:
         raise NotImplementedError()
 

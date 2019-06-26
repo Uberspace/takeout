@@ -6,7 +6,7 @@ import uberspace_takeout.items as items
 import uberspace_takeout.storage as storage
 
 
-class TakeoutU7:
+class Takeout:
     takeout_menu = [
         items.common.TakeoutMarker,
         items.common.Homedir,

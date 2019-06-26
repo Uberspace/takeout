@@ -11,7 +11,7 @@ class DomainItem(U7Mixin, TakeoutItem):
     area = None
 
     def takeout(self):
-        domains = utils.run_uberspace(self.area, 'domain', 'list')
+        domains = self.run_uberspace(self.area, 'domain', 'list')
         domains = set(domains) - {
             self.username + '.uber.space',
             self.username + '.' + self.hostname
@@ -21,7 +21,7 @@ class DomainItem(U7Mixin, TakeoutItem):
     def takein(self):
         text = self.storage.unstore_text(self.storage_path)
         for domain in (d for d in text.split('\n') if d):
-            utils.run_uberspace(self.area, 'domain', 'add', domain)
+            self.run_uberspace(self.area, 'domain', 'add', domain)
 
 
 class WebDomains(DomainItem):
@@ -44,7 +44,7 @@ class FlagItem(U7Mixin, TakeoutItem):
     """
 
     def takeout(self):
-        out = utils.run_uberspace(*(self.cmd + ['status']))
+        out = self.run_uberspace(*(self.cmd + ['status']))
         if 'enabled' in out:
             status = 'enable'
         else:
@@ -63,7 +63,7 @@ class FlagItem(U7Mixin, TakeoutItem):
                 )
             )
 
-        utils.run_uberspace(*(self.cmd + [data]))
+        self.run_uberspace(*(self.cmd + [data]))
 
 
 class AccessLogItem(FlagItem):
@@ -94,15 +94,15 @@ class ToolVersions(U7Mixin, TakeoutItem):
     description = 'Setting: Tool Versions'
 
     def takeout(self):
-        tools = utils.run_uberspace('tools', 'version', 'list')
+        tools = self.run_uberspace('tools', 'version', 'list')
 
         for tool in tools:
             tool = tool.lstrip('- ')
-            out = utils.run_uberspace('tools', 'version', 'show', tool)
+            out = self.run_uberspace('tools', 'version', 'show', tool)
             version = re.search(r"'([0-9\.]+)'", out[0]).groups()[0]
             self.storage.store_text(version, 'conf/tool-version/' + tool)
 
     def takein(self):
         for tool in self.storage.list_files('conf/tool-versions'):
             version = self.storage.unstore_text('conf/tool-versions/' + tool)
-            utils.run_uberspace('tools', 'version', 'use', tool, version)
+            self.run_uberspace('tools', 'version', 'use', tool, version)

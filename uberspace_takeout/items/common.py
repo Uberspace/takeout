@@ -36,13 +36,13 @@ class Cronjobs(TakeoutItem):
     description = 'Cronjobs'
 
     def takeout(self):
-        cronjobs = utils.run_command(['crontab', '-l'])
+        cronjobs = self.run_command(['crontab', '-l'])
         text = '\n'.join(cronjobs) + '\n'
         self.storage.store_text(text, 'conf/cronjobs')
 
     def takein(self):
         text = self.storage.unstore_text('conf/cronjobs')
-        utils.run_command(['crontab', '-'], input_text=text)
+        self.run_command(['crontab', '-'], input_text=text)
 
 
 class MySQLPassword(TakeoutItem):

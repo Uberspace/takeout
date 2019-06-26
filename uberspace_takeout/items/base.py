@@ -19,7 +19,7 @@ class TakeoutItem():
     def is_active(self):
         return True
 
-    def run_command(cmd, input_text=None):
+    def run_command(self, cmd, input_text=None):
         p = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
@@ -28,7 +28,7 @@ class TakeoutItem():
 
         return [l for l in out.split('\n') if l]
 
-    def run_uberspace(*cmd):
+    def run_uberspace(self, *cmd):
         return run_command(['uberspace'] + list(cmd))
 
 

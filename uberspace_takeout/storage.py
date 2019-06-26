@@ -60,6 +60,12 @@ class TarStorage(Storage):
                 'but is {}'.format(member.name, member.type)
             )
 
+    def clone_tarinfo(self, tarinfo):
+        # "clone" the object so we don't modify names inside the tar
+        tarinfo2 = tarfile.TarInfo()
+        for attr in (*tarinfo.get_info().keys(), 'offset', 'offset_data'):
+            setattr(tarinfo2, attr, getattr(tarinfo, attr))
+        return tarinfo2
 
     def get_members_in(self, directory):
         directory = directory.rstrip('/') + '/'
@@ -75,6 +81,7 @@ class TarStorage(Storage):
             self._check_member_type(m)
 
             if m.name.startswith(directory):
+                m = self.clone_tarinfo(m)
                 # files might be stored as /www/domain.com/something.html, but need to be extracted
                 # as domain.com/something.html.
                 m.name = m.name[len(directory):]
@@ -94,7 +101,7 @@ class TarStorage(Storage):
         if len(matching) > 1:
             raise Exception('There are {} files matching the path {}. Expected only one.'.format(len(matching), path))
 
-        return matching[0]
+        return self.clone_tarinfo(matching[0])
 
     @classmethod
     def _len(cls, f):

@@ -78,6 +78,8 @@ def test_storage_file(storage, tmp_path, test_file, test_file2):
 
     with storage(tmp_path / 'test.tar.gz', 'takein') as s:
         assert s.unstore_text('simple_file.txt') == 'some file text'
+        # read twice to check hat we don't break the tarinfo objects
+        assert s.unstore_text('subdir/bla/simple_file.txt') == 'some file text2'
         assert s.unstore_text('subdir/bla/simple_file.txt') == 'some file text2'
 
         s.unstore_file('simple_file.txt', tmp_path / 'extracted.txt')

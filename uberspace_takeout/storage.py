@@ -19,7 +19,7 @@ class Storage():
     def __enter__(self):
         raise NotImplementedError()
 
-    def __exit__(self):
+    def __exit__(self, exception_type, exception_value, traceback):
         raise NotImplementedError()
 
     def store_text(self, content, storage_path):

@@ -1,6 +1,7 @@
 import datetime
 import tarfile
 import os
+import errno
 
 try:
     from BytesIO import BytesIO
@@ -128,3 +129,47 @@ class TarStorage(Storage):
         member = self.get_member(storage_path)
         member.name = os.path.basename(system_path)
         self.tar.extractall(os.path.dirname(system_path), [member])
+
+
+class LocalMoveStorage(Storage):
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        pass
+
+    def _storage_path(self, storage_path):
+        storage_path = str(storage_path).lstrip('/')
+        return self.destination + '/' + storage_path
+
+    def _mkdir_p(self, path):
+        if not path:
+            return
+
+        try:
+            os.makedirs(path)
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else:
+                raise
+
+    def store_text(self, content, storage_path):
+        storage_path = self._storage_path(storage_path)
+        self._mkdir_p(os.path.dirname(storage_path))
+        with open(storage_path, 'w') as f:
+            f.write(content)
+
+    def unstore_text(self, storage_path):
+        with open(self._storage_path(storage_path)) as f:
+            return f.read()
+
+    def store_file(self, system_path, storage_path):
+        storage_path = self._storage_path(storage_path)
+        self._mkdir_p(os.path.dirname(storage_path))
+        os.rename(system_path, storage_path)
+
+    def unstore_file(self, storage_path, system_path):
+        self._mkdir_p(os.path.dirname(system_path))
+        os.rename(self._storage_path(storage_path), system_path)

@@ -57,6 +57,7 @@ def test_dir(tmp_path):
 
 storages = [
     TarStorage,
+    LocalMoveStorage,
 ]
 
 @pytest.mark.parametrize('storage', storages)
@@ -68,7 +69,6 @@ def test_storage_text(storage, tmp_path):
     with storage(tmp_path / 'test.tar.gz', 'takein') as s:
         assert s.unstore_text('simple_text.txt') == 'some text 1'
         assert s.unstore_text('subdir/bla/simple_text.txt') == 'some text 2'
-
 
 @pytest.mark.parametrize('storage', storages)
 def test_storage_file(storage, tmp_path, test_file, test_file2):
@@ -114,3 +114,17 @@ def test_storage_slashes(storage, tmp_path, test_file):
         assert s.unstore_text('/subdir/bla/simple_file2.txt') == 'some file text'
         assert s.unstore_text('subdir/bla/simple_text2.txt') == 'some text 3'
         assert s.unstore_text('subdir/bla/simple_file2.txt') == 'some file text'
+
+
+def test_localmovestorage_file_removed(tmp_path, test_file):
+    with LocalMoveStorage(tmp_path / 'test.tar.gz', 'takeout') as s:
+        assert test_file.exists()
+        s.store_file(test_file, 'simple_file.txt')
+        assert not test_file.exists()
+
+
+def test_localmovestorage_directory_removed(tmp_path, test_dir):
+    with LocalMoveStorage(tmp_path / 'test.tar.gz', 'takeout') as s:
+        assert test_dir.exists()
+        s.store_directory(test_dir, 'dir')
+        assert not test_dir.exists()

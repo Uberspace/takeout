@@ -23,6 +23,9 @@ class Storage():
     def __exit__(self, exception_type, exception_value, traceback):
         raise NotImplementedError()
 
+    def list_files(self, storage_path):
+        raise NotImplementedError()
+
     def store_text(self, content, storage_path):
         raise NotImplementedError()
 
@@ -111,6 +114,9 @@ class TarStorage(Storage):
         f.seek(old_position)
         return length
 
+    def list_files(self, storage_path):
+        return [m.name for m in self.get_members_in(storage_path) if '/' not in m.name]
+
     def store_text(self, content, storage_path):
         storage_path = str(storage_path).lstrip('/')
         content = BytesIO(content.encode('utf-8'))
@@ -161,6 +167,9 @@ class LocalMoveStorage(Storage):
                 pass
             else:
                 raise
+
+    def list_files(self, storage_path):
+        return os.listdir(self._storage_path(storage_path))
 
     def store_text(self, content, storage_path):
         storage_path = self._storage_path(storage_path)

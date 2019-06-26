@@ -106,6 +106,14 @@ def test_storage_directory(storage, tmp_path, test_dir):
 
 
 @pytest.mark.parametrize('storage', storages)
+def test_storage_list_files(storage, tmp_path, test_dir):
+    with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
+        s.store_directory(test_dir, 'dir')
+        assert sorted(s.list_files('dir')) == ['file.txt', 'some_subdir']
+        assert sorted(s.list_files('dir/some_subdir')) == ['file2.txt']
+
+
+@pytest.mark.parametrize('storage', storages)
 def test_storage_slashes(storage, tmp_path, test_file):
     with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
         s.store_text('some text 3', '/subdir/bla/simple_text2.txt')

@@ -28,10 +28,10 @@ class DomainItem(U6Mixin, TakeoutItem):
 class WebDomains(DomainItem):
     description = 'Web Domains'
     flag = '-w'
-    storage_path = 'domains-web'
+    storage_path = 'conf/domains-web'
 
 
 class MailDomains(DomainItem):
     description = 'Mail Domains'
     flag = '-m'
-    storage_path = 'domains-mail'
+    storage_path = 'conf/domains-mail'

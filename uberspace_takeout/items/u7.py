@@ -27,13 +27,13 @@ class DomainItem(U7Mixin, TakeoutItem):
 class WebDomains(DomainItem):
     description = 'Web Domains'
     area = 'web'
-    storage_path = 'domains-web'
+    storage_path = 'conf/domains-web'
 
 
 class MailDomains(DomainItem):
     description = 'Mail Domains'
     area = 'mail'
-    storage_path = 'domains-mail'
+    storage_path = 'conf/domains-mail'
 
 
 class FlagItem(U7Mixin, TakeoutItem):
@@ -69,25 +69,25 @@ class FlagItem(U7Mixin, TakeoutItem):
 class AccessLogItem(FlagItem):
     description = 'Setting: Access-Log'
     cmd = ['web', 'log', 'access']
-    storage_path = 'log-access'
+    storage_path = 'conf/log-access'
 
 
 class ApacheErrorLogItem(FlagItem):
     description = 'Setting: Apache-Error-Log'
     cmd = ['web', 'log', 'apache_error']
-    storage_path = 'log-apache_error'
+    storage_path = 'conf/log-apache_error'
 
 
 class PhpErrorLogItem(FlagItem):
     description = 'Setting: PHP-Error-Log'
     cmd = ['web', 'log', 'php_error']
-    storage_path = 'log-php_error'
+    storage_path = 'conf/log-php_error'
 
 
 class SpamfilterLogItem(FlagItem):
     description = 'Setting: Spamfilter'
     cmd = ['mail', 'spamfilter']
-    storage_path = 'spamfilter-enabled'
+    storage_path = 'conf/spamfilter-enabled'
 
 
 class ToolVersions(U7Mixin, TakeoutItem):
@@ -101,9 +101,9 @@ class ToolVersions(U7Mixin, TakeoutItem):
             out = utils.run_uberspace('tools', 'version', 'show', tool)
             version = re.search(r"'([0-9\.]+)'", out[0]).groups()[0]
             dump += tool + '=' + version + '\n'
-        self.storage.store_text(dump, 'tool-versions')
+        self.storage.store_text(dump, 'conf/tool-versions')
 
     def takein(self):
-        text = self.storage.unstore_text('tool-versions')
+        text = self.storage.unstore_text('conf/tool-versions')
         for tool, version in (l.split('=') for l in text.split('\n') if l):
             utils.run_uberspace('tools', 'version', 'use', tool, version)

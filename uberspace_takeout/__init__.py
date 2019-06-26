@@ -12,6 +12,7 @@ class TakeoutU7:
         items.common.Homedir,
         items.common.Www,
         items.common.Cronjobs,
+        items.common.MySQLPassword,
         items.u7.WebDomains,
         items.u7.MailDomains,
         items.u7.AccessLogItem,

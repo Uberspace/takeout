@@ -1,3 +1,5 @@
+import configparser
+
 from .base import PathItem, TakeoutItem
 
 
@@ -41,3 +43,39 @@ class Cronjobs(TakeoutItem):
     def takein(self):
         text = self.storage.unstore_text('cronjobs')
         utils.run_command(['crontab', '-'], input_text=text)
+
+
+class MySQLPassword(TakeoutItem):
+    description = 'MySQL password'
+
+    @property
+    def _my_cnf_path(self):
+        return '/home/' + self.username + '/.my.cnf'
+
+    def _open_my_cnf(self, section):
+        config = configparser.ConfigParser()
+        config.read(self._my_cnf_path)
+        return config
+
+    def _read_my_cnf_password(self, section):
+        return self._open_my_cnf()[section]['password']
+
+    def _write_my_cnf_password(self, section, password):
+        config = self._open_my_cnf()
+        config[section]['password'] = password
+
+        with open(self._my_cnf_path) as f:
+            config.write(f)
+
+    def _set_password(self, suffix):
+        password = self.storage.unstore_text('conf/mysql-password-client' + suffix)
+        self.run_command(['mysql', '--defaults-group-suffix=' + suffix, '-e', "SET PASSWORD = PASSWORD('" + password + "')"])
+        _write_my_cnf_password('client' + suffix, password)
+
+    def takeout(self):
+        self.storage.store_text(self._read_mysql_password('client'), 'conf/mysql-password-client')
+        self.storage.store_text(self._read_mysql_password('clientreadonly'), 'conf/mysql-password-clientreadonly')
+
+    def takein(self):
+        self._set_password('client')
+        self._set_password('clientreadonly')

@@ -19,6 +19,11 @@ setup(
       'uberspace_takeout',
       'uberspace_takeout.items',
     ],
+    extras_require={
+      'dev': [
+        'pyfakefs',
+      ],
+    },
     entry_points = {
       'console_scripts': ['uberspace-takeout=uberspace_takeout.__main__:main'],
     },

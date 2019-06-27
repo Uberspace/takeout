@@ -24,9 +24,15 @@ class Takeout:
         items.u6.MailDomains,
     ]
 
+    def __init__(self, hostname=None):
+        if not hostname:
+            hostname = socket.getfqdn()
+
+        self.hostname = hostname
+
     def get_items(self, username, storage):
         for item in self.takeout_menu:
-            instance = item(username, socket.getfqdn(), storage)
+            instance = item(username, self.hostname, storage)
             if instance.is_active():
                 yield instance
 

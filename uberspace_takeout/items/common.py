@@ -58,24 +58,24 @@ class MySQLPassword(TakeoutItem):
         return config
 
     def _read_my_cnf_password(self, section):
-        return self._open_my_cnf()[section]['password']
+        return self._open_my_cnf(section)[section]['password']
 
     def _write_my_cnf_password(self, section, password):
-        config = self._open_my_cnf()
+        config = self._open_my_cnf(section)
         config[section]['password'] = password
 
-        with open(self._my_cnf_path) as f:
+        with open(self._my_cnf_path, 'w') as f:
             config.write(f)
 
     def _set_password(self, suffix):
         password = self.storage.unstore_text('conf/mysql-password-client' + suffix)
         self.run_command(['mysql', '--defaults-group-suffix=' + suffix, '-e', "SET PASSWORD = PASSWORD('" + password + "')"])
-        _write_my_cnf_password('client' + suffix, password)
+        self._write_my_cnf_password('client' + suffix, password)
 
     def takeout(self):
-        self.storage.store_text(self._read_mysql_password('client'), 'conf/mysql-password-client')
-        self.storage.store_text(self._read_mysql_password('clientreadonly'), 'conf/mysql-password-clientreadonly')
+        self.storage.store_text(self._read_my_cnf_password('client'), 'conf/mysql-password-client')
+        self.storage.store_text(self._read_my_cnf_password('clientreadonly'), 'conf/mysql-password-clientreadonly')
 
     def takein(self):
-        self._set_password('client')
-        self._set_password('clientreadonly')
+        self._set_password('')
+        self._set_password('readonly')

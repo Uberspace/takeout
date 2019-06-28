@@ -27,6 +27,9 @@ def clean_root(skip_dirs=['commands', 'tmp', 'etc']):
     Path('/home').mkdir()
     Path('/var/www/virtual').mkdir(parents=True)
 
+    assert not os.listdir('/home')
+    assert not os.listdir('/var/www/virtual')
+
 
 @pytest.fixture
 def mock_run_command(mocker):

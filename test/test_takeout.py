@@ -4,6 +4,7 @@ import configparser
 import shutil
 
 import pytest
+from pyfakefs.fake_filesystem_unittest import Pause
 
 from uberspace_takeout import Takeout
 
@@ -17,6 +18,25 @@ def populate_root(fs, new_root):
     # add each root-dir individually
     for path in os.listdir('/rootcontent'):
         fs.add_real_directory(outside_root / path, lazy_read=False, read_only=False, target_path='/' + path)
+
+    with Pause(fs):
+        # recreate symlinks
+        for base, _, _ in os.walk(outside_root):
+            for path in os.listdir(base):
+                path = os.path.join(base, path)
+
+                if not os.path.islink(path):
+                    continue
+
+                target = os.readlink(path)
+
+                try:
+                    fs.remove_object('/rootcontent/' + path[len(str(outside_root)):])
+                except FileNotFoundError:
+                    pass
+
+                fs.create_symlink('/rootcontent/' + path[len(str(outside_root)):], target)
+                fs.create_symlink(path[len(str(outside_root)):], target)
 
 
 def clean_root(skip_dirs=['rootcontent', 'commands', 'tmp', 'etc']):
@@ -97,6 +117,6 @@ def test_takeout_u6(fs, mock_run_command):
 
     assert_file_unchanged('/var/www/virtual/isabell/html/index.html')
     assert_file_unchanged('/var/www/virtual/isabell/html/blog/index.html')
-    # there are no symlinks yet
-    #assert_file_unchanged('/home/isabell/html/index.html')
+    assert os.path.islink('/home/isabell/html')
+    assert_file_unchanged('/home/isabell/html/index.html')
     assert_file_unchanged('/home/isabell/Maildir/cur/mail-888')

@@ -36,12 +36,16 @@ def mock_run_command(mocker):
     called = {}
 
     def run_command(self, cmd, input_text=None, *args, **kwargs):
-        called[" ".join(cmd)] = input_text
+        cmd_str = " ".join(cmd)
+
         try:
-            with open('/commands/' + ' '.join(cmd), 'r') as f:
-                return [l.rstrip() for l in f.readlines() if l.rstrip()]
+            with open('/commands/' + cmd_str, 'r') as f:
+                output = [l.rstrip() for l in f.readlines() if l.rstrip()]
         except FileNotFoundError:
-            raise Exception('not ouput provided for command "{}"'.format(" ".join(cmd)))
+            raise Exception('not ouput provided for command "{}"'.format(cmd_str))
+        else:
+            called[cmd_str] = input_text
+            return output
 
     mocker.patch('uberspace_takeout.items.base.TakeoutItem.run_command', run_command)
 

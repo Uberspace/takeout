@@ -19,7 +19,7 @@ def populate_root(fs, new_root):
         fs.add_real_directory(outside_root / path, lazy_read=False, read_only=False, target_path='/' + path)
 
 
-def clean_root(skip_dirs=['commands', 'tmp', 'etc']):
+def clean_root(skip_dirs=['rootcontent', 'commands', 'tmp', 'etc']):
     for path in os.listdir('/'):
         if path not in skip_dirs:
             shutil.rmtree('/' + path)
@@ -33,10 +33,10 @@ def clean_root(skip_dirs=['commands', 'tmp', 'etc']):
 
 @pytest.fixture
 def mock_run_command(mocker):
-    called = []
+    called = {}
 
-    def run_command(self, cmd, *args, **kwargs):
-        called.append(" ".join(cmd))
+    def run_command(self, cmd, input_text=None, *args, **kwargs):
+        called[" ".join(cmd)] = input_text
         try:
             with open('/commands/' + ' '.join(cmd), 'r') as f:
                 return [l.rstrip() for l in f.readlines() if l.rstrip()]
@@ -48,6 +48,23 @@ def mock_run_command(mocker):
     return called
 
 
+def content(path):
+    with open(path) as f:
+        return f.read()
+
+
+def assert_in_file(path, text):
+    assert text in content(path)
+
+
+def assert_files_equal(path1, path2):
+    assert content(path1) == content(path2)
+
+
+def assert_file_unchanged(path):
+    assert content('/rootcontent' + path) == content(path)
+
+
 def test_takeout_u6(fs, mock_run_command):
     populate_root(fs, 'u6/isabell')
 
@@ -57,10 +74,25 @@ def test_takeout_u6(fs, mock_run_command):
 
     clean_root()
 
+    mock_run_command.clear()
+
     takeout.takein('/tmp/test.tar.gz', 'isabell')
+
     assert "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')" in mock_run_command
+    assert_in_file('/home/isabell/.my.cnf', 'Lei4eengekae3iet4Ies')
     assert "mysql --defaults-group-suffix=readonly -e SET PASSWORD = PASSWORD('eeruaSooch6iereequoo')" in mock_run_command
+    assert_in_file('/home/isabell/.my.cnf', 'eeruaSooch6iereequoo')
+
     assert "uberspace-add-domain -w -d *.example.com" in mock_run_command
     assert "uberspace-add-domain -w -d example.com" in mock_run_command
     assert "uberspace-add-domain -w -d foo.example.com" in mock_run_command
     assert "uberspace-add-domain -m -d mail.example.com" in mock_run_command
+
+    assert "crontab -" in mock_run_command
+    assert mock_run_command["crontab -"] == "@daily echo good morning\n"
+
+    assert_file_unchanged('/var/www/virtual/isabell/html/index.html')
+    assert_file_unchanged('/var/www/virtual/isabell/html/blog/index.html')
+    # there are no symlinks yet
+    #assert_file_unchanged('/home/isabell/html/index.html')
+    assert_file_unchanged('/home/isabell/Maildir/cur/mail-888')

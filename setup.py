@@ -20,8 +20,9 @@ setup(
       'uberspace_takeout.items',
     ],
     extras_require={
-      'dev': [
+      'test': [
         'pyfakefs',
+        'pytest-mock',
       ],
     },
     entry_points = {

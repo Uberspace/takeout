@@ -2,7 +2,7 @@ import os.path
 
 import pytest
 
-from uberspace_takeout.storage import Storage, TarStorage, LocalMoveStorage
+from uberspace_takeout.storage import LocalMoveStorage, Storage, TarStorage
 
 
 @pytest.mark.parametrize('mode', [

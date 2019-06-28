@@ -1,7 +1,7 @@
 import datetime
-import tarfile
-import os
 import errno
+import os
+import tarfile
 
 try:
     from BytesIO import BytesIO

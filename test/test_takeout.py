@@ -1,7 +1,7 @@
-from pathlib import Path
-import os
 import configparser
+import os
 import shutil
+from pathlib import Path
 
 import pytest
 from pyfakefs.fake_filesystem_unittest import Pause

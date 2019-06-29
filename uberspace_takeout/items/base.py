@@ -29,7 +29,7 @@ class TakeoutItem():
         return [l for l in out.split('\n') if l]
 
     def run_uberspace(self, *cmd):
-        return run_command(['uberspace'] + list(cmd))
+        return self.run_command(['uberspace'] + list(cmd))
 
 
 class PathItem(TakeoutItem):

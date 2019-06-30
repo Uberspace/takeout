@@ -13,14 +13,6 @@ def prefix_root(prefix):
     return Path(__file__).parent / 'uberspaces' / prefix
 
 
-def current_prefix(fs):
-    return fs.get_object('/last_prefix').contents
-
-
-def current_prefix_root(fs):
-    return prefix_root(current_prefix(fs))
-
-
 def populate_root(fs, prefix):
     outside_root = prefix_root(prefix)
 
@@ -38,14 +30,8 @@ def populate_root(fs, prefix):
 
             fs.add_real_directory(outside_root / dir, lazy_read=False, read_only=False, target_path='/' + dir)
 
-        try:
-            fs.remove_object('/last_prefix')
-        except FileNotFoundError:
-            pass
-        fs.create_file('/last_prefix', contents=prefix)
 
-
-def clean_root(skip_dirs=['tmp', 'etc', 'last_prefix']):
+def clean_root(skip_dirs=['tmp', 'etc']):
     for path in os.listdir('/'):
         if path not in skip_dirs:
             shutil.rmtree('/' + path)
@@ -59,25 +45,61 @@ def clean_root(skip_dirs=['tmp', 'etc', 'last_prefix']):
 
 @pytest.fixture
 def mock_run_command(fs, mocker):
-    called = {}
+    class Commands():
+        def __init__(self, *args, **kwargs):
+            self.called = {}
+            self.commands = {}
 
-    def run_command(self, cmd, input_text=None, *args, **kwargs):
-        cmd_str = " ".join(cmd)
-        commands = current_prefix_root(fs) / 'commands'
+            self._mock()
 
-        with Pause(fs):
-            try:
-                with open(commands / cmd_str, 'r') as f:
-                    output = [l.rstrip() for l in f.readlines() if l.rstrip()]
-            except FileNotFoundError:
-                raise Exception('not ouput provided for command "{}"'.format(cmd_str))
-            else:
-                called[cmd_str] = input_text
-                return output
+        def clear(self):
+            self.called.clear()
+            self.commands.clear()
 
-    mocker.patch('uberspace_takeout.items.base.TakeoutItem.run_command', run_command)
+        def add_prefix_commands(self, prefix):
+            commands = prefix_root(prefix) / 'commands'
 
-    return called
+            with Pause(fs):
+                for cmd in os.listdir(commands):
+                    with open(commands / cmd) as f:
+                        self.add_command(cmd, f.read())
+
+        def add_command(self, command, output=""):
+            if command in self.commands:
+                raise Exception("Command '{}' is already defined.".format(command))
+            if isinstance(command, list):
+                command = " ".join(command)
+
+            self.commands[command] = output
+
+        def assert_called(self, command, input_text=None):
+            if isinstance(command, list):
+                command = " ".join(command)
+
+            assert command in self.called
+
+            if input_text:
+                assert self.called[command] == input_text
+
+            del self.called[command]
+
+        def assert_no_unexpected(self):
+            assert not self.called, "unexpected commands executed"
+
+        def _mock(self):
+            def _run_command(_, cmd, input_text=None, *args, **kwargs):
+                cmd_str = " ".join(cmd)
+                self.called[cmd_str] = input_text
+
+                if cmd_str in self.commands:
+                    output = self.commands[cmd_str]
+                    return [l.rstrip() for l in output.split('\n') if l.rstrip()]
+                else:
+                    return []
+
+            mocker.patch('uberspace_takeout.items.base.TakeoutItem.run_command', _run_command)
+
+    return Commands()
 
 
 def content(path):
@@ -93,15 +115,16 @@ def assert_files_equal(path1, path2):
     assert content(path1) == content(path2)
 
 
-def assert_file_unchanged(path, fs):
+def assert_file_unchanged(path, fs, prefix):
     with Pause(fs):
-        original = content(current_prefix_root(fs) / path.lstrip('/'))
+        original = content(prefix_root(prefix) / path.lstrip('/'))
 
     assert original == content(path)
 
 
 def test_takeout_u6_to_u6(fs, mock_run_command):
     populate_root(fs, 'u6/isabell')
+    mock_run_command.add_prefix_commands('u6/isabell')
 
     takeout = Takeout(hostname='andromeda.uberspace.de')
 
@@ -113,28 +136,30 @@ def test_takeout_u6_to_u6(fs, mock_run_command):
 
     takeout.takein('/tmp/test.tar.gz', 'isabell')
 
-    assert "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')" in mock_run_command
+    mock_run_command.assert_called("mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')")
     assert_in_file('/home/isabell/.my.cnf', 'Lei4eengekae3iet4Ies')
-    assert "mysql --defaults-group-suffix=readonly -e SET PASSWORD = PASSWORD('eeruaSooch6iereequoo')" in mock_run_command
+    mock_run_command.assert_called("mysql --defaults-group-suffix=readonly -e SET PASSWORD = PASSWORD('eeruaSooch6iereequoo')")
     assert_in_file('/home/isabell/.my.cnf', 'eeruaSooch6iereequoo')
 
-    assert "uberspace-add-domain -w -d *.example.com" in mock_run_command
-    assert "uberspace-add-domain -w -d example.com" in mock_run_command
-    assert "uberspace-add-domain -w -d foo.example.com" in mock_run_command
-    assert "uberspace-add-domain -m -d mail.example.com" in mock_run_command
+    mock_run_command.assert_called("uberspace-add-domain -w -d *.example.com")
+    mock_run_command.assert_called("uberspace-add-domain -w -d example.com")
+    mock_run_command.assert_called("uberspace-add-domain -w -d foo.example.com")
+    mock_run_command.assert_called("uberspace-add-domain -m -d mail.example.com")
 
-    assert "crontab -" in mock_run_command
-    assert mock_run_command["crontab -"] == "@daily echo good morning\n"
+    mock_run_command.assert_called("crontab -", "@daily echo good morning\n")
 
-    assert_file_unchanged('/var/www/virtual/isabell/html/index.html', fs)
-    assert_file_unchanged('/var/www/virtual/isabell/html/blog/index.html', fs)
+    mock_run_command.assert_no_unexpected()
+
+    assert_file_unchanged('/var/www/virtual/isabell/html/index.html', fs, 'u6/isabell')
+    assert_file_unchanged('/var/www/virtual/isabell/html/blog/index.html', fs, 'u6/isabell')
     assert os.path.islink('/home/isabell/html')
-    assert_file_unchanged('/home/isabell/html/index.html', fs)
-    assert_file_unchanged('/home/isabell/Maildir/cur/mail-888', fs)
+    assert_file_unchanged('/home/isabell/html/index.html', fs, 'u6/isabell')
+    assert_file_unchanged('/home/isabell/Maildir/cur/mail-888', fs, 'u6/isabell')
 
 
 def test_takeout_u6_to_u7(fs, mock_run_command):
     populate_root(fs, 'u6/isabell')
+    mock_run_command.add_prefix_commands('u6/isabell')
 
     takeout = Takeout(hostname='andromeda.uberspace.de')
 
@@ -146,12 +171,15 @@ def test_takeout_u6_to_u7(fs, mock_run_command):
 
     takeout.takein('/tmp/test.tar.gz', 'isabell')
 
-    assert "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')" in mock_run_command
+    mock_run_command.assert_called("mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')")
     assert_in_file('/home/isabell/.my.cnf', 'Lei4eengekae3iet4Ies')
-    assert "mysql --defaults-group-suffix=readonly -e SET PASSWORD = PASSWORD('eeruaSooch6iereequoo')" in mock_run_command
+    mock_run_command.assert_called("mysql --defaults-group-suffix=readonly -e SET PASSWORD = PASSWORD('eeruaSooch6iereequoo')")
     assert_in_file('/home/isabell/.my.cnf', 'eeruaSooch6iereequoo')
 
-    assert "uberspace web domain add *.example.com" not in mock_run_command
-    assert "uberspace web domain add example.com" in mock_run_command
-    assert "uberspace web domain add foo.example.com" in mock_run_command
-    assert "uberspace mail domain add mail.example.com" in mock_run_command
+    mock_run_command.assert_called("uberspace web domain add example.com")
+    mock_run_command.assert_called("uberspace web domain add foo.example.com")
+    mock_run_command.assert_called("uberspace mail domain add mail.example.com")
+
+    mock_run_command.assert_called("crontab -", "@daily echo good morning\n")
+
+    mock_run_command.assert_no_unexpected()

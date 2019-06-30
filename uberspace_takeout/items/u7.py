@@ -58,7 +58,7 @@ class FlagItem(U7Mixin, TakeoutItem):
     def takein(self):
         try:
             data = self.storage.unstore_text(self.storage_path)
-        except KeyError:
+        except FileNotFoundError:
             return
 
         if data not in ('enable', 'disable'):
@@ -109,6 +109,11 @@ class ToolVersions(U7Mixin, TakeoutItem):
             self.storage.store_text(version, 'conf/tool-version/' + tool)
 
     def takein(self):
-        for tool in self.storage.list_files('conf/tool-versions'):
+        try:
+            tools = self.storage.list_files('conf/tool-versions')
+        except FileNotFoundError:
+            return
+
+        for tool in tools:
             version = self.storage.unstore_text('conf/tool-versions/' + tool)
             self.run_uberspace('tools', 'version', 'use', tool, version)

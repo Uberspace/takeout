@@ -89,6 +89,27 @@ def test_storage_file(storage, tmp_path, test_file, test_file2):
 
 
 @pytest.mark.parametrize('storage', storages)
+def test_storage_file_eexists(storage, tmp_path, test_file):
+    with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
+        s.store_file(test_file, 'simple_file.txt')
+
+        test_file.touch()
+
+        with pytest.raises(FileExistsError):
+            s.store_file(test_file, 'simple_file.txt')
+
+
+@pytest.mark.parametrize('storage', storages)
+def test_storage_file_noent(storage, tmp_path, test_file):
+    with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
+        pass
+
+    with storage(tmp_path / 'test.tar.gz', 'takein') as s:
+        with pytest.raises(FileNotFoundError):
+            s.unstore_file('simple_file.txt', tmp_path / 'somefile')
+
+
+@pytest.mark.parametrize('storage', storages)
 def test_storage_directory(storage, tmp_path, test_dir):
     with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
         s.store_directory(test_dir, 'dir')
@@ -106,11 +127,42 @@ def test_storage_directory(storage, tmp_path, test_dir):
 
 
 @pytest.mark.parametrize('storage', storages)
+def test_storage_directory_eexists(storage, tmp_path, test_dir):
+    with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
+        s.store_directory(test_dir, 'dir')
+
+        test_dir.mkdir(exist_ok=True)
+
+        with pytest.raises(FileExistsError):
+            s.store_directory(test_dir, 'dir')
+
+
+@pytest.mark.parametrize('storage', storages)
+def test_storage_directory_noent(storage, tmp_path):
+    with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
+        pass
+
+    with storage(tmp_path / 'test.tar.gz', 'takein') as s:
+        with pytest.raises(FileNotFoundError):
+            s.unstore_directory('dir', tmp_path / 'new_dir')
+
+
+@pytest.mark.parametrize('storage', storages)
 def test_storage_list_files(storage, tmp_path, test_dir):
     with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
         s.store_directory(test_dir, 'dir')
         assert sorted(s.list_files('dir')) == ['file.txt', 'some_subdir']
         assert sorted(s.list_files('dir/some_subdir')) == ['file2.txt']
+
+
+@pytest.mark.parametrize('storage', storages)
+def test_storage_list_files_noent(storage, tmp_path, test_dir):
+    with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
+        pass
+
+    with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
+        with pytest.raises(FileNotFoundError):
+            s.list_files('dir')
 
 
 @pytest.mark.parametrize('storage', storages)

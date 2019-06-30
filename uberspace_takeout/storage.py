@@ -90,6 +90,15 @@ class TarStorage(Storage):
                 m.name = m.name[len(directory):]
                 yield m
 
+    def has_member(self, path):
+        for m in self.tar.getmembers():
+            self._check_member_type(m)
+
+            if m.name == path:
+                return True
+
+        return False
+
     def get_member(self, path):
         matching = []
 
@@ -100,7 +109,7 @@ class TarStorage(Storage):
                 matching.append(m)
 
         if len(matching) == 0:
-            raise Exception('The file {} could not be found in tar.'.format(path))
+            raise FileNotFoundError()
         if len(matching) > 1:
             raise Exception('There are {} files matching the path {}. Expected only one.'.format(len(matching), path))
 
@@ -115,7 +124,10 @@ class TarStorage(Storage):
         return length
 
     def list_files(self, storage_path):
-        return [m.name for m in self.get_members_in(storage_path) if '/' not in m.name]
+        members = list(self.get_members_in(storage_path))
+        if not members:
+            raise FileNotFoundError()
+        return [m.name for m in members if '/' not in m.name]
 
     def store_text(self, content, storage_path):
         storage_path = str(storage_path).lstrip('/')
@@ -127,15 +139,22 @@ class TarStorage(Storage):
 
     def unstore_text(self, storage_path):
         storage_path = str(storage_path).lstrip('/')
+        if not self.has_member(storage_path):
+            raise FileNotFoundError()
         return self.tar.extractfile(storage_path).read().decode('utf-8')
 
     def store_file(self, system_path, storage_path):
         storage_path = str(storage_path).lstrip('/')
+        if self.has_member(storage_path):
+            raise FileExistsError()
         self.tar.add(str(system_path), storage_path)
 
     def unstore_directory(self, storage_path, system_path):
         storage_path = str(storage_path).lstrip('/')
-        self.tar.extractall(system_path, self.get_members_in(storage_path))
+        members = list(self.get_members_in(storage_path))
+        if not members:
+            raise FileNotFoundError()
+        self.tar.extractall(system_path, members)
 
     def unstore_file(self, storage_path, system_path):
         storage_path = str(storage_path).lstrip('/')
@@ -169,10 +188,15 @@ class LocalMoveStorage(Storage):
                 raise
 
     def list_files(self, storage_path):
-        return os.listdir(self._storage_path(storage_path))
+        storage_path = self._storage_path(storage_path)
+        if not os.path.exists(storage_path):
+            raise FileNotFoundError()
+        return os.listdir(storage_path)
 
     def store_text(self, content, storage_path):
         storage_path = self._storage_path(storage_path)
+        if os.path.exists(storage_path):
+            raise FileExistsError()
         self._mkdir_p(os.path.dirname(storage_path))
         with open(storage_path, 'w') as f:
             f.write(content)
@@ -183,9 +207,14 @@ class LocalMoveStorage(Storage):
 
     def store_file(self, system_path, storage_path):
         storage_path = self._storage_path(storage_path)
+        if os.path.exists(storage_path):
+            raise FileExistsError()
         self._mkdir_p(os.path.dirname(storage_path))
         os.rename(system_path, storage_path)
 
     def unstore_file(self, storage_path, system_path):
+        storage_path = self._storage_path(storage_path)
+        if not os.path.exists(storage_path):
+            raise FileNotFoundError()
         self._mkdir_p(os.path.dirname(system_path))
-        os.rename(self._storage_path(storage_path), system_path)
+        os.rename(storage_path, system_path)

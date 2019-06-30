@@ -56,7 +56,10 @@ class FlagItem(U7Mixin, TakeoutItem):
         self.storage.store_text(status, self.storage_path)
 
     def takein(self):
-        data = self.storage.unstore_text(self.storage_path)
+        try:
+            data = self.storage.unstore_text(self.storage_path)
+        except KeyError:
+            return
 
         if data not in ('enable', 'disable'):
             raise Exception(

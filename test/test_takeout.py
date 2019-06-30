@@ -183,3 +183,9 @@ def test_takeout_u6_to_u7(fs, mock_run_command):
     mock_run_command.assert_called("crontab -", "@daily echo good morning\n")
 
     mock_run_command.assert_no_unexpected()
+
+    assert_file_unchanged('/var/www/virtual/isabell/html/index.html', fs, 'u6/isabell')
+    assert_file_unchanged('/var/www/virtual/isabell/html/blog/index.html', fs, 'u6/isabell')
+    assert os.path.islink('/home/isabell/html')
+    assert_file_unchanged('/home/isabell/html/index.html', fs, 'u6/isabell')
+    assert_file_unchanged('/home/isabell/Maildir/cur/mail-888', fs, 'u6/isabell')

@@ -131,3 +131,27 @@ def test_takeout_u6_to_u6(fs, mock_run_command):
     assert os.path.islink('/home/isabell/html')
     assert_file_unchanged('/home/isabell/html/index.html', fs)
     assert_file_unchanged('/home/isabell/Maildir/cur/mail-888', fs)
+
+
+def test_takeout_u6_to_u7(fs, mock_run_command):
+    populate_root(fs, 'u6/isabell')
+
+    takeout = Takeout(hostname='andromeda.uberspace.de')
+
+    takeout.takeout('/tmp/test.tar.gz', 'isabell')
+
+    clean_root()
+    mock_run_command.clear()
+    populate_root(fs, 'u7/empty')
+
+    takeout.takein('/tmp/test.tar.gz', 'isabell')
+
+    assert "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')" in mock_run_command
+    assert_in_file('/home/isabell/.my.cnf', 'Lei4eengekae3iet4Ies')
+    assert "mysql --defaults-group-suffix=readonly -e SET PASSWORD = PASSWORD('eeruaSooch6iereequoo')" in mock_run_command
+    assert_in_file('/home/isabell/.my.cnf', 'eeruaSooch6iereequoo')
+
+    assert "uberspace web domain add *.example.com" not in mock_run_command
+    assert "uberspace web domain add example.com" in mock_run_command
+    assert "uberspace web domain add foo.example.com" in mock_run_command
+    assert "uberspace mail domain add mail.example.com" in mock_run_command

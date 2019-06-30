@@ -25,6 +25,7 @@ lib64/
 parts/
 sdist/
 var/
+!/test/uberspaces/**/var
 wheels/
 pip-wheel-metadata/
 share/python-wheels/

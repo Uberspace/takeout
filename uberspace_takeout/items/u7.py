@@ -21,6 +21,9 @@ class DomainItem(U7Mixin, TakeoutItem):
     def takein(self):
         text = self.storage.unstore_text(self.storage_path)
         for domain in (d for d in text.split('\n') if d):
+            if domain.startswith('*.'):
+                print("cannot add wildcard domain on: " + domain)
+                continue
             self.run_uberspace(self.area, 'domain', 'add', domain)
 
 

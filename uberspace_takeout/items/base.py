@@ -1,3 +1,4 @@
+import getpass
 import re
 import subprocess
 
@@ -20,6 +21,14 @@ class TakeoutItem():
         return True
 
     def run_command(self, cmd, input_text=None):
+        current_user = getpass.getuser()
+
+        if current_user != self.username:
+            if current_user == 'root':
+                cmd = ['sudo', '-u', self.username] + cmd
+            else:
+                raise Exception('Takeout is running as the wrong user: {}.'.format(current_user))
+
         p = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE,

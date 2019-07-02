@@ -12,6 +12,7 @@ def main():
 
     p = argparse.ArgumentParser()
     p.add_argument('action', choices=['takeout', 'takein'])
+    p.add_argument('--username', default=username)
     p.add_argument('--tar-file', default=default_tar_path)
     args = p.parse_args()
 
@@ -21,9 +22,9 @@ def main():
         tar_path = '/dev/stdout'
 
     if args.action == 'takeout':
-        Takeout().takeout(tar_path, username)
+        Takeout().takeout(tar_path, args.username)
     elif args.action == 'takein':
-        Takeout().takein(tar_path, username)
+        Takeout().takein(tar_path, args.username)
     else:
         raise NotImplementedError()
 

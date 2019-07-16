@@ -21,7 +21,7 @@ setup(
     ],
     extras_require={
       'test': [
-        'pyfakefs',
+        'pyfakefs>=3.6',
         'pytest-mock',
       ],
     },

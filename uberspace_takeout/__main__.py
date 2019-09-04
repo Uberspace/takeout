@@ -23,8 +23,10 @@ def main():
         tar_path = '/dev/stdout'
 
     if args.action == 'takeout':
+        print('wirting ' + tar_path)
         Takeout().takeout(tar_path, args.username, args.skip_item)
     elif args.action == 'takein':
+        print('reading ' + tar_path)
         Takeout().takein(tar_path, args.username, args.skip_item)
     elif args.action == 'items':
         print('\n'.join(i.__name__.ljust(25, ' ') + i.description for i in Takeout.takeout_menu))

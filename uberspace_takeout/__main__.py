@@ -19,13 +19,16 @@ def main():
 
     tar_path = args.tar_file
 
-    if tar_path == '-':
-        tar_path = '/dev/stdout'
-
     if args.action == 'takeout':
+        if tar_path == '-':
+            tar_path = '/dev/stdout'
+
         print('wirting ' + tar_path)
         Takeout().takeout(tar_path, args.username, args.skip_item)
     elif args.action == 'takein':
+        if tar_path == '-':
+            tar_path = '/dev/stdin'
+
         print('reading ' + tar_path)
         Takeout().takein(tar_path, args.username, args.skip_item)
     elif args.action == 'items':

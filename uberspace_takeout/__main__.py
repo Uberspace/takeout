@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import getpass
+import sys
 
 from . import Takeout
 
@@ -22,6 +23,7 @@ def main():
     if args.action == 'takeout':
         if tar_path == '-':
             tar_path = '/dev/stdout'
+            sys.stdout = sys.stderr
 
         print('wirting ' + tar_path)
         Takeout().takeout(tar_path, args.username, args.skip_item)

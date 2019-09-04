@@ -14,7 +14,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('action', choices=['takeout', 'takein', 'items'])
     p.add_argument('--username', default=username)
-    p.add_argument('--skip-item', action='append')
+    p.add_argument('--skip-item', action='append', default=[])
     p.add_argument('--tar-file', default=default_tar_path)
     args = p.parse_args()
 

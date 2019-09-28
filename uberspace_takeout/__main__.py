@@ -25,7 +25,7 @@ def main():
             tar_path = '/dev/stdout'
             sys.stdout = sys.stderr
 
-        print('wirting ' + tar_path)
+        print('writing ' + tar_path)
         Takeout().takeout(tar_path, args.username, args.skip_item)
     elif args.action == 'takein':
         if tar_path == '-':

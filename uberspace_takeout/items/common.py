@@ -37,7 +37,12 @@ class Cronjobs(TakeoutItem):
 
     def takeout(self):
         cronjobs = self.run_command(['crontab', '-l'])
-        text = '\n'.join(cronjobs) + '\n'
+
+        if len(cronjobs) == 1 and cronjobs[0].startswith('no crontab for'):
+            text = ''
+        else:
+            text = '\n'.join(cronjobs) + '\n'
+
         self.storage.store_text(text, 'conf/cronjobs')
 
     def takein(self):

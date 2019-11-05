@@ -23,6 +23,7 @@ class TakeoutItem():
         p = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
+            universal_newlines=True,  # get a string, not bytes
         )
         out, _ = p.communicate(input_text)
 

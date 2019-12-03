@@ -63,7 +63,8 @@ class MySQLPassword(TakeoutItem):
         return config
 
     def _read_my_cnf_password(self, section):
-        return self._open_my_cnf(section)[section]['password']
+        raw_pw = self._open_my_cnf(section)[section]['password']
+        return raw_pw.partition('#')[0].strip()
 
     def _write_my_cnf_password(self, section, password):
         config = self._open_my_cnf(section)

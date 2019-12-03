@@ -48,7 +48,7 @@ class Storage():
 class TarStorage(Storage):
 
     def __enter__(self):
-        mode = 'w|bz2' if self.mode == 'takeout' else 'r|bz2'
+        mode = 'w:bz2' if self.mode == 'takeout' else 'r:bz2'
         self.tar = tarfile.open(self.destination, mode)
         return self
 

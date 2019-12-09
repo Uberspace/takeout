@@ -91,3 +91,20 @@ takein: ToolVersions
 takein: WebDomains
 takein: MailDomains
 ```
+
+## Release
+
+Assuming you have been handed the required credentials, a new version
+can be released as follows.
+
+1. adapt the version in ``setup.py``, according to `semver`_.
+2. commit this change as ``Version 1.2.3``
+3. tag the resulting commit as ``v1.2.3``
+4. push the new tag as well as the ``master`` branch
+5. update the package on PyPI:
+
+```console
+$ rm dist/*
+$ python setup.py sdist bdist_wheel
+$ twine upload dist/*
+```

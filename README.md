@@ -91,14 +91,3 @@ takein: ToolVersions
 takein: WebDomains
 takein: MailDomains
 ```
-
-### Streaming
-
-Both `takeout` and `takein` can stream their data to and from standard input by
-passing `--tar-file -`. This enables moving uberspaces without actually writing
-the data to disk:
-
-```console
-$ uberspace-takeout takeout --tar-file - |
-    ssh some@other.uberspace.de uberspace-takeout takein --tar-file -
-```

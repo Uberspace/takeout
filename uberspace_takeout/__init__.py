@@ -36,7 +36,9 @@ class Takeout:
             if instance.is_active():
                 yield instance
 
-    def takein(self, tar_path, username, skipped_items):
+    def takein(self, tar_path, username, skipped_items=None):
+        if skipped_items is None:
+            skipped_items = []
         with storage.TarStorage(tar_path, 'takein') as stor:
             for item in self.get_items(username, stor):
                 if item.__class__.__name__ in skipped_items:
@@ -46,7 +48,9 @@ class Takeout:
                 print('takein: ' + item.description)
                 item.takein()
 
-    def takeout(self, tar_path, username, skipped_items):
+    def takeout(self, tar_path, username, skipped_items=None):
+        if skipped_items is None:
+            skipped_items = []
         with storage.TarStorage(tar_path, 'takeout') as stor:
             for item in self.get_items(username, stor):
                 if item.__class__.__name__ in skipped_items:

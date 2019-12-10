@@ -24,8 +24,12 @@ setup(
         'pyfakefs>=3.6',
         'pytest-mock',
       ],
+      'py27': [
+          'configparser',
+          'pathlib2',
+      ]
     },
-    entry_points = {
+    entry_points={
       'console_scripts': ['uberspace-takeout=uberspace_takeout.__main__:main'],
     },
     classifiers=[

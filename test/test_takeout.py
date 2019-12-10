@@ -1,12 +1,16 @@
-import configparser
 import os
 import shutil
-from pathlib import Path
 
 import pytest
 from pyfakefs.fake_filesystem_unittest import Pause
 
 from uberspace_takeout import Takeout
+from uberspace_takeout.compat import FileNotFoundError
+from uberspace_takeout.compat import Path
+
+
+# NOTE: there is a lot of `str(PosixPath)` casting going on below, this might
+# be better solved with using `pathlib.Path` instead of `os` functions...
 
 
 def prefix_root(prefix):
@@ -17,8 +21,8 @@ def populate_root(fs, prefix):
     outside_root = prefix_root(prefix)
 
     with Pause(fs):
-        for dir in os.listdir(outside_root):
-            if not os.path.isdir(outside_root / dir):
+        for dir in os.listdir(str(outside_root)):
+            if not os.path.isdir(str(outside_root / dir)):
                 raise NotImplementedError("currently only directories are supported at root level")
             if dir == 'commands':
                 continue
@@ -28,7 +32,7 @@ def populate_root(fs, prefix):
             except FileNotFoundError:
                 pass
 
-            fs.add_real_directory(outside_root / dir, lazy_read=False, read_only=False, target_path='/' + dir)
+            fs.add_real_directory(str(outside_root / dir), lazy_read=False, read_only=False, target_path='/' + dir)
 
 
 def clean_root(skip_dirs=['tmp', 'etc']):
@@ -60,8 +64,8 @@ def mock_run_command(fs, mocker):
             commands = prefix_root(prefix) / 'commands'
 
             with Pause(fs):
-                for cmd in os.listdir(commands):
-                    with open(commands / cmd) as f:
+                for cmd in os.listdir(str(commands)):
+                    with open(str(commands / cmd)) as f:
                         self.add_command(cmd, f.read())
 
         def add_command(self, command, output=""):
@@ -103,7 +107,7 @@ def mock_run_command(fs, mocker):
 
 
 def content(path):
-    with open(path) as f:
+    with open(str(path)) as f:
         return f.read()
 
 

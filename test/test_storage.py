@@ -3,6 +3,8 @@ import os.path
 import pytest
 
 from uberspace_takeout.storage import LocalMoveStorage, Storage, TarStorage
+from uberspace_takeout.compat import FileExistsError
+from uberspace_takeout.compat import FileNotFoundError
 
 
 @pytest.mark.parametrize('mode', [
@@ -60,6 +62,7 @@ storages = [
     LocalMoveStorage,
 ]
 
+
 @pytest.mark.parametrize('storage', storages)
 def test_storage_text(storage, tmp_path):
     with storage(tmp_path / 'test.tar.gz', 'takeout') as s:
@@ -69,6 +72,7 @@ def test_storage_text(storage, tmp_path):
     with storage(tmp_path / 'test.tar.gz', 'takein') as s:
         assert s.unstore_text('simple_text.txt') == 'some text 1'
         assert s.unstore_text('subdir/bla/simple_text.txt') == 'some text 2'
+
 
 @pytest.mark.parametrize('storage', storages)
 def test_storage_file(storage, tmp_path, test_file, test_file2):

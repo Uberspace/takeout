@@ -73,7 +73,7 @@ $ ll *.tar.bz2
 
 You can read an archive created by `uberspace-takeout takeout` using
 `... takein`. It will, to the best of its ability, restore all settings and
-files exported ealier. Importing MySQL databases is not yet implemented.
+files exported earlier. Importing MySQL databases is not yet implemented.
 
 ```console
 $ uberspace-takeout takein --tar-file takeout_luto_2019-09-04_14_44_30.tar.bz2
@@ -92,7 +92,43 @@ takein: WebDomains
 takein: MailDomains
 ```
 
-## Release
+## Development
+
+After cloning, create a _virtual environment_:
+
+```console
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+```
+
+Install the development-requirements:
+
+```
+pip install -r requirements.txt
+```
+
+And run some setup:
+
+```
+pre-commit install
+```
+
+After that you can…
+
+### Lint
+
+```console
+pre-commit run --all-files
+```
+
+### Test
+
+```console
+tox
+```
+
+### Release
 
 Assuming you have been handed the required credentials, a new version
 can be released as follows.

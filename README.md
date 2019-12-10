@@ -108,6 +108,20 @@ Install the development-requirements:
 pip install -r requirements.txt
 ```
 
+And run some setup:
+
+```
+pre-commit install
+```
+
+After that you can…
+
+### Lint
+
+```console
+pre-commit run --all-files
+```
+
 ### Test
 
 ```console

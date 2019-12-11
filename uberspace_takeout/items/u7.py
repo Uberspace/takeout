@@ -1,6 +1,7 @@
 import re
 
 from .base import TakeoutItem, UberspaceVersionMixin
+from ..compat import FileNotFoundError
 
 
 class U7Mixin(UberspaceVersionMixin):

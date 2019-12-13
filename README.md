@@ -1,11 +1,11 @@
 # Uberspace Takeout
 
-Import and export uberspaces to and from special .tar files.
+Import and export _uberspaces_ to and from special `.tar` files.
 
 ## Items
 
-Takeout is organized in TakeoutItems, which handle the import and export of a
-single topic. `Homedir` takes care of all files in the users home directory,
+Takeout is organized in **TakeoutItems**, which handle the import and export of
+a single topic. `Homedir` takes care of all files in the users home directory,
 `MySQLPassword` gets and sets the MySQL passwords.
 
 Implementations can be found in `uberspace_takeout/items/{common,u6,u7}.py`.
@@ -108,20 +108,6 @@ Install the development-requirements:
 pip install -r requirements.txt
 ```
 
-And run some setup:
-
-```
-pre-commit install
-```
-
-After that you can…
-
-### Lint
-
-```console
-pre-commit run --all-files
-```
-
 ### Test
 
 ```console
@@ -133,10 +119,10 @@ tox
 Assuming you have been handed the required credentials, a new version
 can be released as follows.
 
-1. adapt the version in ``setup.py``, according to `semver`_.
-2. commit this change as ``Version 1.2.3``
-3. tag the resulting commit as ``v1.2.3``
-4. push the new tag as well as the ``master`` branch
+1. adapt the version in `setup.py`, according to `semver`\_.
+2. commit this change as `Version 1.2.3`
+3. tag the resulting commit as `v1.2.3`
+4. push the new tag as well as the `master` branch
 5. update the package on PyPI:
 
 ```console

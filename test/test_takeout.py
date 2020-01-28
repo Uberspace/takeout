@@ -23,7 +23,9 @@ def populate_root(fs, prefix):
     with Pause(fs):
         for dir in os.listdir(str(outside_root)):
             if not os.path.isdir(str(outside_root / dir)):
-                raise NotImplementedError("currently only directories are supported at root level")
+                raise NotImplementedError(
+                    "currently only directories are supported at root level"
+                )
             if dir == 'commands':
                 continue
 
@@ -32,7 +34,12 @@ def populate_root(fs, prefix):
             except FileNotFoundError:
                 pass
 
-            fs.add_real_directory(str(outside_root / dir), lazy_read=False, read_only=False, target_path='/' + dir)
+            fs.add_real_directory(
+                str(outside_root / dir),
+                lazy_read=False,
+                read_only=False,
+                target_path='/' + dir,
+            )
 
 
 def clean_root(skip_dirs=['tmp', 'etc']):
@@ -49,7 +56,7 @@ def clean_root(skip_dirs=['tmp', 'etc']):
 
 @pytest.fixture
 def mock_run_command(fs, mocker):
-    class Commands():
+    class Commands:
         def __init__(self, *args, **kwargs):
             self.called = {}
             self.commands = {}
@@ -101,7 +108,9 @@ def mock_run_command(fs, mocker):
                 else:
                     return []
 
-            mocker.patch('uberspace_takeout.items.base.TakeoutItem.run_command', _run_command)
+            mocker.patch(
+                'uberspace_takeout.items.base.TakeoutItem.run_command', _run_command
+            )
 
     return Commands()
 
@@ -140,7 +149,9 @@ def test_takeout_u6_to_u6(fs, mock_run_command):
 
     takeout.takein('/tmp/test.tar.gz', 'isabell')
 
-    mock_run_command.assert_called("mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')")
+    mock_run_command.assert_called(
+        "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')"
+    )
     assert_in_file('/home/isabell/.my.cnf', 'Lei4eengekae3iet4Ies')
 
     mock_run_command.assert_called("uberspace-add-domain -w -d *.example.com")
@@ -153,7 +164,9 @@ def test_takeout_u6_to_u6(fs, mock_run_command):
     mock_run_command.assert_no_unexpected()
 
     assert_file_unchanged('/var/www/virtual/isabell/html/index.html', fs, 'u6/isabell')
-    assert_file_unchanged('/var/www/virtual/isabell/html/blog/index.html', fs, 'u6/isabell')
+    assert_file_unchanged(
+        '/var/www/virtual/isabell/html/blog/index.html', fs, 'u6/isabell'
+    )
     assert os.path.islink('/home/isabell/html')
     assert_file_unchanged('/home/isabell/html/index.html', fs, 'u6/isabell')
     assert_file_unchanged('/home/isabell/Maildir/cur/mail-888', fs, 'u6/isabell')
@@ -173,7 +186,9 @@ def test_takeout_u6_to_u7(fs, mock_run_command):
 
     takeout.takein('/tmp/test.tar.gz', 'isabell')
 
-    mock_run_command.assert_called("mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')")
+    mock_run_command.assert_called(
+        "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')"
+    )
     assert_in_file('/home/isabell/.my.cnf', 'Lei4eengekae3iet4Ies')
 
     mock_run_command.assert_called("uberspace web domain add example.com")
@@ -185,7 +200,9 @@ def test_takeout_u6_to_u7(fs, mock_run_command):
     mock_run_command.assert_no_unexpected()
 
     assert_file_unchanged('/var/www/virtual/isabell/html/index.html', fs, 'u6/isabell')
-    assert_file_unchanged('/var/www/virtual/isabell/html/blog/index.html', fs, 'u6/isabell')
+    assert_file_unchanged(
+        '/var/www/virtual/isabell/html/blog/index.html', fs, 'u6/isabell'
+    )
     assert os.path.islink('/home/isabell/html')
     assert_file_unchanged('/home/isabell/html/index.html', fs, 'u6/isabell')
     assert_file_unchanged('/home/isabell/Maildir/cur/mail-888', fs, 'u6/isabell')

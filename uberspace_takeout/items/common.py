@@ -1,6 +1,7 @@
 import configparser
 
-from .base import PathItem, TakeoutItem
+from .base import PathItem
+from .base import TakeoutItem
 
 
 class TakeoutMarker(TakeoutItem):
@@ -75,11 +76,20 @@ class MySQLPassword(TakeoutItem):
 
     def _set_password(self, suffix):
         password = self.storage.unstore_text('conf/mysql-password-client' + suffix)
-        self.run_command(['mysql', '--defaults-group-suffix=' + suffix, '-e', "SET PASSWORD = PASSWORD('" + password + "')"])
+        self.run_command(
+            [
+                'mysql',
+                '--defaults-group-suffix=' + suffix,
+                '-e',
+                "SET PASSWORD = PASSWORD('" + password + "')",
+            ]
+        )
         self._write_my_cnf_password('client' + suffix, password)
 
     def takeout(self):
-        self.storage.store_text(self._read_my_cnf_password('client'), 'conf/mysql-password-client')
+        self.storage.store_text(
+            self._read_my_cnf_password('client'), 'conf/mysql-password-client'
+        )
 
     def takein(self):
         self._set_password('')

@@ -1,6 +1,7 @@
 import re
 
-from .base import TakeoutItem, UberspaceVersionMixin
+from .base import TakeoutItem
+from .base import UberspaceVersionMixin
 
 
 class U6Mixin(UberspaceVersionMixin):

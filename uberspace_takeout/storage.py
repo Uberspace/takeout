@@ -8,10 +8,12 @@ from .compat import FileExistsError
 from .compat import FileNotFoundError
 
 
-class Storage():
+class Storage:
     def __init__(self, destination, mode):
         if mode not in ('takein', 'takeout'):
-            raise Exception('Invalid mode {}, expected "takein" or "takeout".'.format(mode))
+            raise Exception(
+                'Invalid mode {}, expected "takein" or "takeout".'.format(mode)
+            )
 
         self.destination = str(destination)
         self.mode = mode
@@ -45,7 +47,6 @@ class Storage():
 
 
 class TarStorage(Storage):
-
     def __enter__(self):
         mode = 'w:bz2' if self.mode == 'takeout' else 'r:bz2'
         self.tar = tarfile.open(self.destination, mode)
@@ -69,7 +70,9 @@ class TarStorage(Storage):
             attributes = tuple(tarinfo.get_info().keys())
         except TypeError:
             # Python 2.7 needs additional arguments for encoding
-            attributes = tuple(tarinfo.get_info(encoding='utf-8', errors='strict').keys())
+            attributes = tuple(
+                tarinfo.get_info(encoding='utf-8', errors='strict').keys()
+            )
         for attr in attributes + ('offset', 'offset_data'):
             setattr(tarinfo2, attr, getattr(tarinfo, attr))
         return tarinfo2
@@ -79,11 +82,17 @@ class TarStorage(Storage):
 
         for m in self.tar.getmembers():
             if '..' in m.name:
-                raise Exception('tar member has illegal name (contains ".."): ' + m.name)
+                raise Exception(
+                    'tar member has illegal name (contains ".."): ' + m.name
+                )
             if m.name.startswith('/'):
-                raise Exception('tar member has illegal name (starts with "/"): ' + m.name)
+                raise Exception(
+                    'tar member has illegal name (starts with "/"): ' + m.name
+                )
             if m.name.startswith('./'):
-                raise Exception('tar member has illegal name (starts with "./"): ' + m.name)
+                raise Exception(
+                    'tar member has illegal name (starts with "./"): ' + m.name
+                )
 
             self._check_member_type(m)
 
@@ -91,7 +100,7 @@ class TarStorage(Storage):
                 m = self.clone_tarinfo(m)
                 # files might be stored as /www/domain.com/something.html, but need to be extracted
                 # as domain.com/something.html.
-                m.name = m.name[len(directory):]
+                m.name = m.name[len(directory) :]
                 yield m
 
     def has_member(self, path):
@@ -115,7 +124,11 @@ class TarStorage(Storage):
         if len(matching) == 0:
             raise FileNotFoundError()
         if len(matching) > 1:
-            raise Exception('There are {} files matching the path {}. Expected only one.'.format(len(matching), path))
+            raise Exception(
+                'There are {} files matching the path {}. Expected only one.'.format(
+                    len(matching), path
+                )
+            )
 
         return self.clone_tarinfo(matching[0])
 
@@ -170,7 +183,6 @@ class TarStorage(Storage):
 
 
 class LocalMoveStorage(Storage):
-
     def __enter__(self):
         return self
 

@@ -1,16 +1,13 @@
-import os.path
-
 import pytest
 
-from uberspace_takeout.storage import LocalMoveStorage, Storage, TarStorage
 from uberspace_takeout.compat import FileExistsError
 from uberspace_takeout.compat import FileNotFoundError
+from uberspace_takeout.storage import LocalMoveStorage
+from uberspace_takeout.storage import Storage
+from uberspace_takeout.storage import TarStorage
 
 
-@pytest.mark.parametrize('mode', [
-    'takeout',
-    'takein',
-])
+@pytest.mark.parametrize('mode', ['takeout', 'takein',])
 def test_storage_ctor(mode):
     s = Storage('dest.tar.gz', mode)
     assert s.destination == 'dest.tar.gz'

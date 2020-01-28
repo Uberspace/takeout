@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import sys
 
 try:
@@ -15,34 +16,25 @@ setup(
     author='uberspace.de',
     author_email='hallo@uberspace.de',
     url='https://github.com/uberspace/takeout',
-    packages=[
-      'uberspace_takeout',
-      'uberspace_takeout.items',
-    ],
+    packages=['uberspace_takeout', 'uberspace_takeout.items',],
     extras_require={
-      'test': [
-        'pyfakefs>=3.6',
-        'pytest-mock',
-      ],
-      'py27': [
-          'configparser',
-          'pathlib2',
-      ]
+        'test': ['pyfakefs>=3.6', 'pytest-mock',],
+        'py27': ['configparser', 'pathlib2',],
     },
     entry_points={
-      'console_scripts': ['uberspace-takeout=uberspace_takeout.__main__:main'],
+        'console_scripts': ['uberspace-takeout=uberspace_takeout.__main__:main'],
     },
     classifiers=[
-      'Development Status :: 5 - Production/Stable',
-      'Intended Audience :: Developers',
-      'Intended Audience :: Information Technology',
-      'Intended Audience :: System Administrators',
-      'Topic :: System :: Systems Administration',
-      'Topic :: Security',
-      'Topic :: Utilities',
-      'Natural Language :: English',
-      'Operating System :: POSIX :: Linux',
-      'Programming Language :: Python :: 2.7',
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: System Administrators',
+        'Topic :: System :: Systems Administration',
+        'Topic :: Security',
+        'Topic :: Utilities',
+        'Natural Language :: English',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 2.7',
     ],
     zip_safe=True,
 )

@@ -1,7 +1,8 @@
 import re
 
-from .base import TakeoutItem, UberspaceVersionMixin
 from ..compat import FileNotFoundError
+from .base import TakeoutItem
+from .base import UberspaceVersionMixin
 
 
 class U7Mixin(UberspaceVersionMixin):
@@ -15,7 +16,7 @@ class DomainItem(U7Mixin, TakeoutItem):
         domains = self.run_uberspace(self.area, 'domain', 'list')
         domains = set(domains) - {
             self.username + '.uber.space',
-            self.username + '.' + self.hostname
+            self.username + '.' + self.hostname,
         }
         self.storage.store_text('\n'.join(domains), self.storage_path)
 
@@ -65,8 +66,7 @@ class FlagItem(U7Mixin, TakeoutItem):
         if data not in ('enable', 'disable'):
             raise Exception(
                 'invalid "uberspace {}" value: {}, expected "enabled" or "disabled".'.format(
-                    ' '.join(self.cmd),
-                    data,
+                    ' '.join(self.cmd), data,
                 )
             )
 

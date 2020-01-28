@@ -2,7 +2,7 @@ import re
 import subprocess
 
 
-class TakeoutItem():
+class TakeoutItem:
     description = None
 
     def __init__(self, username, hostname, storage):
@@ -22,7 +22,9 @@ class TakeoutItem():
     def run_command(self, cmd, input_text=None):
         p = subprocess.Popen(
             cmd,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.PIPE,
             universal_newlines=True,  # get a string, not bytes
         )
         out, _ = p.communicate(input_text)
@@ -43,7 +45,7 @@ class PathItem(TakeoutItem):
         self.storage.unstore_directory(self.storage_path, self.path())
 
 
-class UberspaceVersionMixin():
+class UberspaceVersionMixin:
     uberspace_version = None
 
     @property

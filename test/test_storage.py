@@ -1,7 +1,5 @@
 import pytest
 
-from uberspace_takeout.compat import FileExistsError
-from uberspace_takeout.compat import FileNotFoundError
 from uberspace_takeout.storage import LocalMoveStorage
 from uberspace_takeout.storage import Storage
 from uberspace_takeout.storage import TarStorage

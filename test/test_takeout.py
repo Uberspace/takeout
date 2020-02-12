@@ -145,9 +145,9 @@ def test_takeout_u6_to_u6(fs, mock_run_command):
     takeout.takein('/tmp/test.tar.gz', 'isabell')
 
     mock_run_command.assert_called(
-        "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')"
+        "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4e%ngekäe3iÖt4Ies')"
     )
-    assert_in_file('/home/isabell/.my.cnf', 'Lei4eengekae3iet4Ies')
+    assert_in_file('/home/isabell/.my.cnf', 'Lei4e%ngekäe3iÖt4Ies')
 
     mock_run_command.assert_called("uberspace-add-domain -w -d *.example.com")
     mock_run_command.assert_called("uberspace-add-domain -w -d example.com")
@@ -182,9 +182,9 @@ def test_takeout_u6_to_u7(fs, mock_run_command):
     takeout.takein('/tmp/test.tar.gz', 'isabell')
 
     mock_run_command.assert_called(
-        "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4eengekae3iet4Ies')"
+        "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4e%ngekäe3iÖt4Ies')"
     )
-    assert_in_file('/home/isabell/.my.cnf', 'Lei4eengekae3iet4Ies')
+    assert_in_file('/home/isabell/.my.cnf', 'Lei4e%ngekäe3iÖt4Ies')
 
     mock_run_command.assert_called("uberspace web domain add example.com")
     mock_run_command.assert_called("uberspace web domain add foo.example.com")

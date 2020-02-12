@@ -11,7 +11,7 @@ except ImportError:
 
 setup(
     name='uberspace_takeout',
-    version='0.0.3',
+    version='0.0.4',
     description='',
     author='uberspace.de',
     author_email='hallo@uberspace.de',

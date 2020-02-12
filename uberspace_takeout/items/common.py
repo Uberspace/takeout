@@ -59,7 +59,7 @@ class MySQLPassword(TakeoutItem):
         return '/home/' + self.username + '/.my.cnf'
 
     def _open_my_cnf(self, section):
-        config = configparser.ConfigParser()
+        config = configparser.ConfigParser(interpolation=None)
         config.read(self._my_cnf_path)
         return config
 

@@ -3,9 +3,10 @@ import errno
 import os
 import tarfile
 
-from .compat import BytesIO
-from .compat import FileExistsError
-from .compat import FileNotFoundError
+try:
+    from BytesIO import BytesIO
+except ImportError:
+    from io import BytesIO
 
 
 class Storage:
@@ -66,14 +67,7 @@ class TarStorage(Storage):
     def clone_tarinfo(self, tarinfo):
         # "clone" the object so we don't modify names inside the tar
         tarinfo2 = tarfile.TarInfo()
-        try:
-            attributes = tuple(tarinfo.get_info().keys())
-        except TypeError:
-            # Python 2.7 needs additional arguments for encoding
-            attributes = tuple(
-                tarinfo.get_info(encoding='utf-8', errors='strict').keys()
-            )
-        for attr in attributes + ('offset', 'offset_data'):
+        for attr in (*tarinfo.get_info().keys(), 'offset', 'offset_data'):
             setattr(tarinfo2, attr, getattr(tarinfo, attr))
         return tarinfo2
 
@@ -167,7 +161,6 @@ class TarStorage(Storage):
         self.tar.add(str(system_path), storage_path)
 
     def unstore_directory(self, storage_path, system_path):
-        system_path = str(system_path)  # for Python 2.7
         storage_path = str(storage_path).lstrip('/')
         members = list(self.get_members_in(storage_path))
         if not members:
@@ -175,7 +168,6 @@ class TarStorage(Storage):
         self.tar.extractall(system_path, members)
 
     def unstore_file(self, storage_path, system_path):
-        system_path = str(system_path)  # for Python 2.7
         storage_path = str(storage_path).lstrip('/')
         member = self.get_member(storage_path)
         member.name = os.path.basename(system_path)
@@ -224,7 +216,6 @@ class LocalMoveStorage(Storage):
             return f.read()
 
     def store_file(self, system_path, storage_path):
-        system_path = str(system_path)  # for Python 2.7
         storage_path = self._storage_path(storage_path)
         if os.path.exists(storage_path):
             raise FileExistsError()
@@ -232,7 +223,6 @@ class LocalMoveStorage(Storage):
         os.rename(system_path, storage_path)
 
     def unstore_file(self, storage_path, system_path):
-        system_path = str(system_path)  # for Python 2.7
         storage_path = self._storage_path(storage_path)
         if not os.path.exists(storage_path):
             raise FileNotFoundError()

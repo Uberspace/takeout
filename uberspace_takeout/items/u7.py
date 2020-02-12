@@ -1,6 +1,5 @@
 import re
 
-from ..compat import FileNotFoundError
 from .base import TakeoutItem
 from .base import UberspaceVersionMixin
 

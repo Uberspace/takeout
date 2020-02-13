@@ -9,7 +9,7 @@ from uberspace_takeout import Takeout
 
 
 def prefix_root(prefix):
-    return Path(__file__).parent / 'uberspaces' / prefix
+    return Path(__file__).parent / "uberspaces" / prefix
 
 
 def populate_root(fs, prefix):
@@ -21,11 +21,11 @@ def populate_root(fs, prefix):
                 raise NotImplementedError(
                     "currently only directories are supported at root level"
                 )
-            if dir == 'commands':
+            if dir == "commands":
                 continue
 
             try:
-                fs.remove_object('/' + dir)
+                fs.remove_object("/" + dir)
             except FileNotFoundError:
                 pass
 
@@ -33,20 +33,20 @@ def populate_root(fs, prefix):
                 outside_root / dir,
                 lazy_read=False,
                 read_only=False,
-                target_path='/' + dir,
+                target_path="/" + dir,
             )
 
 
-def clean_root(skip_dirs=['tmp', 'etc']):
-    for path in os.listdir('/'):
+def clean_root(skip_dirs=["tmp", "etc"]):
+    for path in os.listdir("/"):
         if path not in skip_dirs:
-            shutil.rmtree('/' + path)
+            shutil.rmtree("/" + path)
 
-    Path('/home').mkdir()
-    Path('/var/www/virtual').mkdir(parents=True)
+    Path("/home").mkdir()
+    Path("/var/www/virtual").mkdir(parents=True)
 
-    assert not os.listdir('/home')
-    assert not os.listdir('/var/www/virtual')
+    assert not os.listdir("/home")
+    assert not os.listdir("/var/www/virtual")
 
 
 @pytest.fixture
@@ -63,7 +63,7 @@ def mock_run_command(fs, mocker):
             self.commands.clear()
 
         def add_prefix_commands(self, prefix):
-            commands = prefix_root(prefix) / 'commands'
+            commands = prefix_root(prefix) / "commands"
 
             with Pause(fs):
                 for cmd in os.listdir(commands):
@@ -99,12 +99,12 @@ def mock_run_command(fs, mocker):
 
                 if cmd_str in self.commands:
                     output = self.commands[cmd_str]
-                    return [l.rstrip() for l in output.split('\n') if l.rstrip()]
+                    return [l.rstrip() for l in output.split("\n") if l.rstrip()]
                 else:
                     return []
 
             mocker.patch(
-                'uberspace_takeout.items.base.TakeoutItem.run_command', _run_command
+                "uberspace_takeout.items.base.TakeoutItem.run_command", _run_command
             )
 
     return Commands()
@@ -125,29 +125,29 @@ def assert_files_equal(path1, path2):
 
 def assert_file_unchanged(path, fs, prefix):
     with Pause(fs):
-        original = content(prefix_root(prefix) / path.lstrip('/'))
+        original = content(prefix_root(prefix) / path.lstrip("/"))
 
     assert original == content(path)
 
 
 def test_takeout_u6_to_u6(fs, mock_run_command):
-    populate_root(fs, 'u6/isabell')
-    mock_run_command.add_prefix_commands('u6/isabell')
+    populate_root(fs, "u6/isabell")
+    mock_run_command.add_prefix_commands("u6/isabell")
 
-    takeout = Takeout(hostname='andromeda.uberspace.de')
+    takeout = Takeout(hostname="andromeda.uberspace.de")
 
-    takeout.takeout('/tmp/test.tar.gz', 'isabell')
+    takeout.takeout("/tmp/test.tar.gz", "isabell")
 
     clean_root()
 
     mock_run_command.clear()
 
-    takeout.takein('/tmp/test.tar.gz', 'isabell')
+    takeout.takein("/tmp/test.tar.gz", "isabell")
 
     mock_run_command.assert_called(
         "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4e%ngekäe3iÖt4Ies')"
     )
-    assert_in_file('/home/isabell/.my.cnf', 'Lei4e%ngekäe3iÖt4Ies')
+    assert_in_file("/home/isabell/.my.cnf", "Lei4e%ngekäe3iÖt4Ies")
 
     mock_run_command.assert_called("uberspace-add-domain -w -d *.example.com")
     mock_run_command.assert_called("uberspace-add-domain -w -d example.com")
@@ -158,33 +158,33 @@ def test_takeout_u6_to_u6(fs, mock_run_command):
 
     mock_run_command.assert_no_unexpected()
 
-    assert_file_unchanged('/var/www/virtual/isabell/html/index.html', fs, 'u6/isabell')
+    assert_file_unchanged("/var/www/virtual/isabell/html/index.html", fs, "u6/isabell")
     assert_file_unchanged(
-        '/var/www/virtual/isabell/html/blog/index.html', fs, 'u6/isabell'
+        "/var/www/virtual/isabell/html/blog/index.html", fs, "u6/isabell"
     )
-    assert os.path.islink('/home/isabell/html')
-    assert_file_unchanged('/home/isabell/html/index.html', fs, 'u6/isabell')
-    assert_file_unchanged('/home/isabell/Maildir/cur/mail-888', fs, 'u6/isabell')
+    assert os.path.islink("/home/isabell/html")
+    assert_file_unchanged("/home/isabell/html/index.html", fs, "u6/isabell")
+    assert_file_unchanged("/home/isabell/Maildir/cur/mail-888", fs, "u6/isabell")
 
 
 def test_takeout_u6_to_u7(fs, mock_run_command):
-    populate_root(fs, 'u6/isabell')
-    mock_run_command.add_prefix_commands('u6/isabell')
+    populate_root(fs, "u6/isabell")
+    mock_run_command.add_prefix_commands("u6/isabell")
 
-    takeout = Takeout(hostname='andromeda.uberspace.de')
+    takeout = Takeout(hostname="andromeda.uberspace.de")
 
-    takeout.takeout('/tmp/test.tar.gz', 'isabell')
+    takeout.takeout("/tmp/test.tar.gz", "isabell")
 
     clean_root()
     mock_run_command.clear()
-    populate_root(fs, 'u7/empty')
+    populate_root(fs, "u7/empty")
 
-    takeout.takein('/tmp/test.tar.gz', 'isabell')
+    takeout.takein("/tmp/test.tar.gz", "isabell")
 
     mock_run_command.assert_called(
         "mysql --defaults-group-suffix= -e SET PASSWORD = PASSWORD('Lei4e%ngekäe3iÖt4Ies')"
     )
-    assert_in_file('/home/isabell/.my.cnf', 'Lei4e%ngekäe3iÖt4Ies')
+    assert_in_file("/home/isabell/.my.cnf", "Lei4e%ngekäe3iÖt4Ies")
 
     mock_run_command.assert_called("uberspace web domain add example.com")
     mock_run_command.assert_called("uberspace web domain add foo.example.com")
@@ -194,10 +194,10 @@ def test_takeout_u6_to_u7(fs, mock_run_command):
 
     mock_run_command.assert_no_unexpected()
 
-    assert_file_unchanged('/var/www/virtual/isabell/html/index.html', fs, 'u6/isabell')
+    assert_file_unchanged("/var/www/virtual/isabell/html/index.html", fs, "u6/isabell")
     assert_file_unchanged(
-        '/var/www/virtual/isabell/html/blog/index.html', fs, 'u6/isabell'
+        "/var/www/virtual/isabell/html/blog/index.html", fs, "u6/isabell"
     )
-    assert os.path.islink('/home/isabell/html')
-    assert_file_unchanged('/home/isabell/html/index.html', fs, 'u6/isabell')
-    assert_file_unchanged('/home/isabell/Maildir/cur/mail-888', fs, 'u6/isabell')
+    assert os.path.islink("/home/isabell/html")
+    assert_file_unchanged("/home/isabell/html/index.html", fs, "u6/isabell")
+    assert_file_unchanged("/home/isabell/Maildir/cur/mail-888", fs, "u6/isabell")

@@ -29,10 +29,10 @@ class TakeoutItem:
         )
         out, _ = p.communicate(input_text)
 
-        return [l for l in out.split('\n') if l]
+        return [l for l in out.split("\n") if l]
 
     def run_uberspace(self, *cmd):
-        return self.run_command(['uberspace'] + list(cmd))
+        return self.run_command(["uberspace"] + list(cmd))
 
 
 class PathItem(TakeoutItem):
@@ -50,10 +50,10 @@ class UberspaceVersionMixin:
 
     @property
     def current_uberspace_version(self):
-        with open('/etc/centos-release') as f:
+        with open("/etc/centos-release") as f:
             text = f.read()
             # looks like "CentOS release 6.10 (Final)"
-            centos_release = re.search(r'release ([0-9])+\.', text).groups()[0]
+            centos_release = re.search(r"release ([0-9])+\.", text).groups()[0]
             return int(centos_release)
 
     def is_active(self):

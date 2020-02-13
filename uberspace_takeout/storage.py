@@ -11,7 +11,7 @@ except ImportError:
 
 class Storage:
     def __init__(self, destination, mode):
-        if mode not in ('takein', 'takeout'):
+        if mode not in ("takein", "takeout"):
             raise Exception(
                 'Invalid mode {}, expected "takein" or "takeout".'.format(mode)
             )
@@ -49,7 +49,7 @@ class Storage:
 
 class TarStorage(Storage):
     def __enter__(self):
-        mode = 'w:bz2' if self.mode == 'takeout' else 'r:bz2'
+        mode = "w:bz2" if self.mode == "takeout" else "r:bz2"
         self.tar = tarfile.open(self.destination, mode)
         return self
 
@@ -59,31 +59,31 @@ class TarStorage(Storage):
     def _check_member_type(self, member):
         if member.type not in (tarfile.REGTYPE, tarfile.SYMTYPE, tarfile.DIRTYPE):
             raise Exception(
-                'tar member has illegal type: {}. '
-                'Must be tarfile.REGTYPE/file, SYMTYPE/symlink or DIRTYPE/directory, '
-                'but is {}'.format(member.name, member.type)
+                "tar member has illegal type: {}. "
+                "Must be tarfile.REGTYPE/file, SYMTYPE/symlink or DIRTYPE/directory, "
+                "but is {}".format(member.name, member.type)
             )
 
     def clone_tarinfo(self, tarinfo):
         # "clone" the object so we don't modify names inside the tar
         tarinfo2 = tarfile.TarInfo()
-        for attr in (*tarinfo.get_info().keys(), 'offset', 'offset_data'):
+        for attr in (*tarinfo.get_info().keys(), "offset", "offset_data"):
             setattr(tarinfo2, attr, getattr(tarinfo, attr))
         return tarinfo2
 
     def get_members_in(self, directory):
-        directory = directory.rstrip('/') + '/'
+        directory = directory.rstrip("/") + "/"
 
         for m in self.tar.getmembers():
-            if '..' in m.name:
+            if ".." in m.name:
                 raise Exception(
                     'tar member has illegal name (contains ".."): ' + m.name
                 )
-            if m.name.startswith('/'):
+            if m.name.startswith("/"):
                 raise Exception(
                     'tar member has illegal name (starts with "/"): ' + m.name
                 )
-            if m.name.startswith('./'):
+            if m.name.startswith("./"):
                 raise Exception(
                     'tar member has illegal name (starts with "./"): ' + m.name
                 )
@@ -119,7 +119,7 @@ class TarStorage(Storage):
             raise FileNotFoundError()
         if len(matching) > 1:
             raise Exception(
-                'There are {} files matching the path {}. Expected only one.'.format(
+                "There are {} files matching the path {}. Expected only one.".format(
                     len(matching), path
                 )
             )
@@ -138,37 +138,37 @@ class TarStorage(Storage):
         members = list(self.get_members_in(storage_path))
         if not members:
             raise FileNotFoundError()
-        return [m.name for m in members if '/' not in m.name]
+        return [m.name for m in members if "/" not in m.name]
 
     def store_text(self, content, storage_path):
-        storage_path = str(storage_path).lstrip('/')
-        content = BytesIO(content.encode('utf-8'))
+        storage_path = str(storage_path).lstrip("/")
+        content = BytesIO(content.encode("utf-8"))
         info = tarfile.TarInfo(storage_path)
         info.size = self._len(content)
         info.mtime = int(datetime.datetime.now().strftime("%s"))
         self.tar.addfile(info, content)
 
     def unstore_text(self, storage_path):
-        storage_path = str(storage_path).lstrip('/')
+        storage_path = str(storage_path).lstrip("/")
         if not self.has_member(storage_path):
             raise FileNotFoundError()
-        return self.tar.extractfile(storage_path).read().decode('utf-8')
+        return self.tar.extractfile(storage_path).read().decode("utf-8")
 
     def store_file(self, system_path, storage_path):
-        storage_path = str(storage_path).lstrip('/')
+        storage_path = str(storage_path).lstrip("/")
         if self.has_member(storage_path):
             raise FileExistsError()
         self.tar.add(str(system_path), storage_path)
 
     def unstore_directory(self, storage_path, system_path):
-        storage_path = str(storage_path).lstrip('/')
+        storage_path = str(storage_path).lstrip("/")
         members = list(self.get_members_in(storage_path))
         if not members:
             raise FileNotFoundError()
         self.tar.extractall(system_path, members)
 
     def unstore_file(self, storage_path, system_path):
-        storage_path = str(storage_path).lstrip('/')
+        storage_path = str(storage_path).lstrip("/")
         member = self.get_member(storage_path)
         member.name = os.path.basename(system_path)
         self.tar.extractall(os.path.dirname(system_path), [member])
@@ -182,8 +182,8 @@ class LocalMoveStorage(Storage):
         pass
 
     def _storage_path(self, storage_path):
-        storage_path = str(storage_path).lstrip('/')
-        return self.destination + '/' + storage_path
+        storage_path = str(storage_path).lstrip("/")
+        return self.destination + "/" + storage_path
 
     def _mkdir_p(self, path):
         if not path:
@@ -208,7 +208,7 @@ class LocalMoveStorage(Storage):
         if os.path.exists(storage_path):
             raise FileExistsError()
         self._mkdir_p(os.path.dirname(storage_path))
-        with open(storage_path, 'w') as f:
+        with open(storage_path, "w") as f:
             f.write(content)
 
     def unstore_text(self, storage_path):

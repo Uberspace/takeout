@@ -1,5 +1,6 @@
 import configparser
 
+from . import TakeoutError
 from .base import PathItem
 from .base import TakeoutItem
 
@@ -67,6 +68,17 @@ class MySQLPassword(TakeoutItem):
         raw_pw = self._open_my_cnf(section)[section]["password"]
         return raw_pw.partition("#")[0].strip().strip('"')
 
+    def _check_password(self, password):
+        if len(password) < 16:
+            msg = (
+                "Your current MySQL password does not satisfy our policy requirements:"
+                " it is shorter than 16 characters."
+                " Please set a sufficiently long one - as described under"
+                " https://wiki.uberspace.de/database:mysql#passwort_aendern"
+                " - or run this script with '--skip-item MySQLPassword'."
+            )
+            raise TakeoutError(msg)
+
     def _write_my_cnf_password(self, section, password):
         config = self._open_my_cnf(section)
         config[section]["password"] = password
@@ -87,9 +99,9 @@ class MySQLPassword(TakeoutItem):
         self._write_my_cnf_password("client" + suffix, password)
 
     def takeout(self):
-        self.storage.store_text(
-            self._read_my_cnf_password("client"), "conf/mysql-password-client"
-        )
+        password = self._read_my_cnf_password("client")
+        self._check_password(password)
+        self.storage.store_text(password, "conf/mysql-password-client")
 
     def takein(self):
         self._set_password("")

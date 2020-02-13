@@ -133,7 +133,7 @@ tox
 Assuming you have been handed the required credentials, a new version
 can be released as follows.
 
-1. adapt the version in `setup.py`, according to `semver`\_.
+1. adapt the `__version__` in `uberspace_takeout/__init__.py`, according to `semver`\_.
 2. commit this change as `Version 1.2.3`
 3. tag the resulting commit as `v1.2.3`
 4. push the new tag as well as the `master` branch

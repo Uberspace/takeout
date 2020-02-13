@@ -3,6 +3,7 @@ import datetime
 import getpass
 import sys
 
+from . import __version__ as version
 from . import Takeout
 
 
@@ -16,6 +17,7 @@ def main():
     p.add_argument("--username", default=username)
     p.add_argument("--skip-item", action="append", default=[])
     p.add_argument("--tar-file", default=default_tar_path)
+    p.add_argument("--version", action="version", version=version)
     args = p.parse_args()
 
     tar_path = args.tar_file

@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import sys
 
 try:
@@ -9,9 +7,12 @@ except ImportError:
     print("Please install it using your package-manager or pip.", file=sys.stderr)
     sys.exit(1)
 
+from uberspace_takeout import __version__ as version
+
+
 setup(
     name="uberspace_takeout",
-    version="0.0.4",
+    version=version,
     description="",
     author="uberspace.de",
     author_email="hallo@uberspace.de",

@@ -38,23 +38,23 @@ class Takeout:
     def takein(self, tar_path, username, skipped_items=None):
         if skipped_items is None:
             skipped_items = []
-        with storage.TarStorage(tar_path, 'takein') as stor:
+        with storage.TarStorage(tar_path, "takein") as stor:
             for item in self.get_items(username, stor):
                 if item.__class__.__name__ in skipped_items:
-                    print('skip: ' + item.description)
+                    print("skip: " + item.description)
                     continue
 
-                print('takein: ' + item.description)
+                print("takein: " + item.description)
                 item.takein()
 
     def takeout(self, tar_path, username, skipped_items=None):
         if skipped_items is None:
             skipped_items = []
-        with storage.TarStorage(tar_path, 'takeout') as stor:
+        with storage.TarStorage(tar_path, "takeout") as stor:
             for item in self.get_items(username, stor):
                 if item.__class__.__name__ in skipped_items:
-                    print('skip: ' + item.description)
+                    print("skip: " + item.description)
                     continue
 
-                print('takeout: ' + item.description)
+                print("takeout: " + item.description)
                 item.takeout()

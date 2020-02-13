@@ -13,31 +13,31 @@ class DomainItem(U6Mixin, TakeoutItem):
     storage_path = None
 
     def takeout(self):
-        domains = self.run_command(['uberspace-list-domains', self.flag])
+        domains = self.run_command(["uberspace-list-domains", self.flag])
         domains = set(domains) - {
-            self.username + '.' + self.hostname,
-            '*.' + self.username + '.' + self.hostname,
+            self.username + "." + self.hostname,
+            "*." + self.username + "." + self.hostname,
         }
-        text = '\n'.join(domains)
+        text = "\n".join(domains)
         self.storage.store_text(text, self.storage_path)
 
     def takein(self):
         text = self.storage.unstore_text(self.storage_path)
 
-        for domain in (d for d in text.split('\n') if d):
-            self.run_command(['uberspace-add-domain', self.flag, '-d', domain])
+        for domain in (d for d in text.split("\n") if d):
+            self.run_command(["uberspace-add-domain", self.flag, "-d", domain])
 
 
 class WebDomains(DomainItem):
-    description = 'Web Domains'
-    flag = '-w'
-    storage_path = 'conf/domains-web'
+    description = "Web Domains"
+    flag = "-w"
+    storage_path = "conf/domains-web"
 
 
 class MailDomains(DomainItem):
-    description = 'Mail Domains'
-    flag = '-m'
-    storage_path = 'conf/domains-mail'
+    description = "Mail Domains"
+    flag = "-m"
+    storage_path = "conf/domains-mail"
 
 
 class ToolVersion(TakeoutItem):
@@ -60,18 +60,18 @@ class ToolVersion(TakeoutItem):
 
 
 class NodeVersion(ToolVersion):
-    storage_path = 'conf/tool-version/node'
-    version_regex = r'^v([0-9]+)'
-    software_command = 'node --version'
+    storage_path = "conf/tool-version/node"
+    version_regex = r"^v([0-9]+)"
+    software_command = "node --version"
 
 
 class RubyVersion(ToolVersion):
-    storage_path = 'conf/tool-version/ruby'
-    version_regex = r'^ruby ([0-9]+\.[0-9]+)'
-    software_command = 'ruby --version'
+    storage_path = "conf/tool-version/ruby"
+    version_regex = r"^ruby ([0-9]+\.[0-9]+)"
+    software_command = "ruby --version"
 
 
 class PhpVersion(ToolVersion):
-    storage_path = 'conf/tool-version/php'
-    version_regex = r'^PHP ([0-9]+\.[0-9]+)'
-    software_command = 'php --version'
+    storage_path = "conf/tool-version/php"
+    version_regex = r"^PHP ([0-9]+\.[0-9]+)"
+    software_command = "php --version"

@@ -5,58 +5,58 @@ from .base import TakeoutItem
 
 
 class TakeoutMarker(TakeoutItem):
-    description = 'Takeout Marker (internal)'
+    description = "Takeout Marker (internal)"
 
     def takeout(self):
-        self.storage.store_text('uberspace_takeout', '.uberspace_takeout')
+        self.storage.store_text("uberspace_takeout", ".uberspace_takeout")
 
     def takein(self):
-        content = self.storage.unstore_text('.uberspace_takeout')
+        content = self.storage.unstore_text(".uberspace_takeout")
 
-        if content != 'uberspace_takeout':
-            raise Exception('input is not a takeout.')
+        if content != "uberspace_takeout":
+            raise Exception("input is not a takeout.")
 
 
 class Homedir(PathItem):
-    description = 'Homedirectory'
-    storage_path = 'home/'
+    description = "Homedirectory"
+    storage_path = "home/"
 
     def path(self):
-        return '/home/' + self.username
+        return "/home/" + self.username
 
 
 class Www(PathItem):
-    description = 'Documentroot'
-    storage_path = 'www/'
+    description = "Documentroot"
+    storage_path = "www/"
 
     def path(self):
-        return '/var/www/virtual/' + self.username
+        return "/var/www/virtual/" + self.username
 
 
 class Cronjobs(TakeoutItem):
-    description = 'Cronjobs'
+    description = "Cronjobs"
 
     def takeout(self):
-        cronjobs = self.run_command(['crontab', '-l'])
+        cronjobs = self.run_command(["crontab", "-l"])
 
-        if len(cronjobs) == 1 and cronjobs[0].startswith('no crontab for'):
-            text = ''
+        if len(cronjobs) == 1 and cronjobs[0].startswith("no crontab for"):
+            text = ""
         else:
-            text = '\n'.join(cronjobs) + '\n'
+            text = "\n".join(cronjobs) + "\n"
 
-        self.storage.store_text(text, 'conf/cronjobs')
+        self.storage.store_text(text, "conf/cronjobs")
 
     def takein(self):
-        text = self.storage.unstore_text('conf/cronjobs')
-        self.run_command(['crontab', '-'], input_text=text)
+        text = self.storage.unstore_text("conf/cronjobs")
+        self.run_command(["crontab", "-"], input_text=text)
 
 
 class MySQLPassword(TakeoutItem):
-    description = 'MySQL password'
+    description = "MySQL password"
 
     @property
     def _my_cnf_path(self):
-        return '/home/' + self.username + '/.my.cnf'
+        return "/home/" + self.username + "/.my.cnf"
 
     def _open_my_cnf(self, section):
         config = configparser.ConfigParser(interpolation=None)
@@ -64,32 +64,32 @@ class MySQLPassword(TakeoutItem):
         return config
 
     def _read_my_cnf_password(self, section):
-        raw_pw = self._open_my_cnf(section)[section]['password']
-        return raw_pw.partition('#')[0].strip().strip('"')
+        raw_pw = self._open_my_cnf(section)[section]["password"]
+        return raw_pw.partition("#")[0].strip().strip('"')
 
     def _write_my_cnf_password(self, section, password):
         config = self._open_my_cnf(section)
-        config[section]['password'] = password
+        config[section]["password"] = password
 
-        with open(self._my_cnf_path, 'w') as f:
+        with open(self._my_cnf_path, "w") as f:
             config.write(f)
 
     def _set_password(self, suffix):
-        password = self.storage.unstore_text('conf/mysql-password-client' + suffix)
+        password = self.storage.unstore_text("conf/mysql-password-client" + suffix)
         self.run_command(
             [
-                'mysql',
-                '--defaults-group-suffix=' + suffix,
-                '-e',
+                "mysql",
+                "--defaults-group-suffix=" + suffix,
+                "-e",
                 "SET PASSWORD = PASSWORD('" + password + "')",
             ]
         )
-        self._write_my_cnf_password('client' + suffix, password)
+        self._write_my_cnf_password("client" + suffix, password)
 
     def takeout(self):
         self.storage.store_text(
-            self._read_my_cnf_password('client'), 'conf/mysql-password-client'
+            self._read_my_cnf_password("client"), "conf/mysql-password-client"
         )
 
     def takein(self):
-        self._set_password('')
+        self._set_password("")

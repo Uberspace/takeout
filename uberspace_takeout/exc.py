@@ -1,0 +1,2 @@
+class TakeoutError(Exception):
+    pass

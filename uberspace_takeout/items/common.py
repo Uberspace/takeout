@@ -1,8 +1,8 @@
 import configparser
 
-from . import TakeoutError
 from .base import PathItem
 from .base import TakeoutItem
+from uberspace_takeout.exc import TakeoutError
 
 
 class TakeoutMarker(TakeoutItem):

@@ -8,6 +8,10 @@ import uberspace_takeout.storage as storage
 __version__ = "0.0.4"
 
 
+class TakeoutError(Exception):
+    pass
+
+
 class Takeout:
     takeout_menu = [
         items.common.TakeoutMarker,
@@ -31,6 +35,7 @@ class Takeout:
             hostname = socket.getfqdn()
 
         self.hostname = hostname
+        self.errors = {}
 
     def get_items(self, username, storage):
         for item in self.takeout_menu:
@@ -48,7 +53,10 @@ class Takeout:
                     continue
 
                 print("takein: " + item.description)
-                item.takein()
+                try:
+                    item.takein()
+                except TakeoutError as exc:
+                    self.errors[item.__class__.__name__] = exc.args
 
     def takeout(self, tar_path, username, skipped_items=None):
         if skipped_items is None:
@@ -60,4 +68,7 @@ class Takeout:
                     continue
 
                 print("takeout: " + item.description)
-                item.takeout()
+                try:
+                    item.takeout()
+                except TakeoutError as exc:
+                    self.errors[item.__class__.__name__] = exc.args

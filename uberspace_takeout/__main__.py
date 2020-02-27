@@ -21,6 +21,7 @@ def main():
     args = p.parse_args()
 
     tar_path = args.tar_file
+    t = Takeout()
 
     if args.action == "takeout":
         if tar_path == "-":
@@ -28,22 +29,38 @@ def main():
             sys.stdout = sys.stderr
 
         print("writing " + tar_path)
-        Takeout().takeout(tar_path, args.username, args.skip_item)
+        t.takeout(tar_path, args.username, args.skip_item)
+
     elif args.action == "takein":
         if tar_path == "-":
             tar_path = "/dev/stdin"
 
         print("reading " + tar_path)
-        Takeout().takein(tar_path, args.username, args.skip_item)
+        t.takein(tar_path, args.username, args.skip_item)
+
     elif args.action == "items":
         print(
             "\n".join(
                 i.__name__.ljust(25, " ") + i.description for i in Takeout.takeout_menu
             )
         )
+        return 0
+
     else:
         raise NotImplementedError()
 
+    if t.errors:
+        print()
+        for item_class, errors in t.errors.items():
+            print(f"[ERROR] {item_class}:")
+            for error in errors:
+                print(f"- {error}")
+        print()
+        return 1
+
+    else:
+        return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

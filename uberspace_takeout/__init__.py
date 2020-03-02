@@ -1,4 +1,3 @@
-#!/opt/uberspace/python-venv/bin/python
 import socket
 
 import uberspace_takeout.items as items

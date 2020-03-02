@@ -1,4 +1,5 @@
 import configparser
+import pathlib
 
 from .base import PathItem
 from .base import TakeoutItem
@@ -56,17 +57,28 @@ class MySQLPassword(TakeoutItem):
     description = "MySQL password"
 
     @property
-    def _my_cnf_path(self):
-        return "/home/" + self.username + "/.my.cnf"
+    def mycnf_path(self):
+        return pathlib.Path("/home", self.username, ".my.cnf")
 
-    def _open_my_cnf(self, section):
-        config = configparser.ConfigParser(interpolation=None)
-        config.read(self._my_cnf_path, encoding="utf-8")
-        return config
+    @property
+    def mycnf_parser(self):
+        cp = configparser.ConfigParser(interpolation=None)
+        cp.read(self.mycnf_path, encoding="utf-8")
+        return cp
 
-    def _read_my_cnf_password(self, section):
-        raw_pw = self._open_my_cnf(section)[section]["password"]
-        return raw_pw.partition("#")[0].strip().strip('"')
+    def _read_mycnf_password(self, section):
+        password = self.mycnf_parser[section]["password"]
+        # remove possible inline comment (` # …`)
+        password = password.partition("#")[0].strip()
+        # remove possible quotes
+        password = password.strip('"')
+        return password
+
+    def _write_mycnf_password(self, section, password):
+        cp = self.mycnf_parser
+        cp[section]["password"] = password
+        with open(self.mycnf_path, "w") as f:
+            cp.write(f)
 
     def _check_password(self, password):
         if len(password) < 16:
@@ -79,15 +91,14 @@ class MySQLPassword(TakeoutItem):
             )
             raise TakeoutError(msg)
 
-    def _write_my_cnf_password(self, section, password):
-        config = self._open_my_cnf(section)
-        config[section]["password"] = password
-
-        with open(self._my_cnf_path, "w") as f:
-            config.write(f)
+    def _get_password(self, suffix):
+        password = self._read_mycnf_password(f"client{suffix}")
+        self._check_password(password)
+        self.storage.store_text(password, f"conf/mysql-password-client{suffix}")
 
     def _set_password(self, suffix):
         password = self.storage.unstore_text(f"conf/mysql-password-client{suffix}")
+        self._check_password(password)
         self.run_command(
             [
                 "mysql",
@@ -96,12 +107,10 @@ class MySQLPassword(TakeoutItem):
                 f"SET PASSWORD = PASSWORD('{password}')",
             ]
         )
-        self._write_my_cnf_password(f"client{suffix}", password)
+        self._write_mycnf_password(f"client{suffix}", password)
 
     def takeout(self):
-        password = self._read_my_cnf_password("client")
-        self._check_password(password)
-        self.storage.store_text(password, "conf/mysql-password-client")
+        self._get_password("")
 
     def takein(self):
         self._set_password("")

@@ -20,16 +20,8 @@ class TakeoutItem:
         return True
 
     def run_command(self, cmd, input_text=None):
-        p = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            stdin=subprocess.PIPE,
-            universal_newlines=True,  # get a string, not bytes
-        )
-        out, _ = p.communicate(input_text)
-
-        return [l for l in out.split("\n") if l]
+        r = subprocess.run(cmd, capture_output=True, text=True, input=input_text)
+        return [l for l in r.stdout.split("\n") if l]
 
     def run_uberspace(self, *cmd):
         return self.run_command(["uberspace"] + list(cmd))

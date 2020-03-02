@@ -87,16 +87,16 @@ class MySQLPassword(TakeoutItem):
             config.write(f)
 
     def _set_password(self, suffix):
-        password = self.storage.unstore_text("conf/mysql-password-client" + suffix)
+        password = self.storage.unstore_text(f"conf/mysql-password-client{suffix}")
         self.run_command(
             [
                 "mysql",
-                "--defaults-group-suffix=" + suffix,
+                f"--defaults-group-suffix={suffix}",
                 "-e",
-                "SET PASSWORD = PASSWORD('" + password + "')",
+                f"SET PASSWORD = PASSWORD('{password}')",
             ]
         )
-        self._write_my_cnf_password("client" + suffix, password)
+        self._write_my_cnf_password(f"client{suffix}", password)
 
     def takeout(self):
         password = self._read_my_cnf_password("client")

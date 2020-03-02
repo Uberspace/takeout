@@ -10,7 +10,7 @@ from . import Takeout
 def main():
     username = getpass.getuser()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
-    default_tar_path = "takeout_{}_{}.tar.bz2".format(username, timestamp)
+    default_tar_path = f"takeout_{username}_{timestamp}.tar.bz2"
 
     p = argparse.ArgumentParser()
     p.add_argument("action", choices=["takeout", "takein", "items"])
@@ -28,22 +28,19 @@ def main():
             tar_path = "/dev/stdout"
             sys.stdout = sys.stderr
 
-        print("writing " + tar_path)
+        print(f"writing {tar_path}")
         t.takeout(tar_path, args.username, args.skip_item)
 
     elif args.action == "takein":
         if tar_path == "-":
             tar_path = "/dev/stdin"
 
-        print("reading " + tar_path)
+        print(f"reading {tar_path}")
         t.takein(tar_path, args.username, args.skip_item)
 
     elif args.action == "items":
-        print(
-            "\n".join(
-                i.__name__.ljust(25, " ") + i.description for i in Takeout.takeout_menu
-            )
-        )
+        items = (f"{i.__name__: <25}{i.description}" for i in Takeout.takeout_menu)
+        print("\n".join(items))
         return 0
 
     else:

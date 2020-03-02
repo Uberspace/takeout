@@ -14,8 +14,8 @@ class DomainItem(U7Mixin, TakeoutItem):
     def takeout(self):
         domains = self.run_uberspace(self.area, "domain", "list")
         domains = set(domains) - {
-            self.username + ".uber.space",
-            self.username + "." + self.hostname,
+            f"{self.username}.uber.space",
+            f"{self.username}.{self.hostname}",
         }
         self.storage.store_text("\n".join(domains), self.storage_path)
 
@@ -23,7 +23,7 @@ class DomainItem(U7Mixin, TakeoutItem):
         text = self.storage.unstore_text(self.storage_path)
         for domain in (d for d in text.split("\n") if d):
             if domain.startswith("*."):
-                print("cannot add wildcard domain on: " + domain)
+                print(f"cannot add wildcard domain on: {domain}")
                 continue
             self.run_uberspace(self.area, "domain", "add", domain)
 
@@ -63,10 +63,10 @@ class FlagItem(U7Mixin, TakeoutItem):
             return
 
         if data not in ("enable", "disable"):
+            cmd = " ".join(self.cmd)
             raise Exception(
-                'invalid "uberspace {}" value: {}, expected "enabled" or "disabled".'.format(
-                    " ".join(self.cmd), data,
-                )
+                f"invalid 'uberspace {cmd}' value: {data}, "
+                "expected 'enabled' or 'disabled'."
             )
 
         self.run_uberspace(*(self.cmd + [data]))
@@ -106,7 +106,7 @@ class ToolVersions(U7Mixin, TakeoutItem):
             tool = tool.lstrip("- ")
             out = self.run_uberspace("tools", "version", "show", tool)
             version = re.search(r"'([0-9\.]+)'", out[0]).groups()[0]
-            self.storage.store_text(version, "conf/tool-version/" + tool)
+            self.storage.store_text(version, f"conf/tool-version/{tool}")
 
     def takein(self):
         try:
@@ -115,5 +115,5 @@ class ToolVersions(U7Mixin, TakeoutItem):
             return
 
         for tool in tools:
-            version = self.storage.unstore_text("conf/tool-versions/" + tool)
+            version = self.storage.unstore_text(f"conf/tool-versions/{tool}")
             self.run_uberspace("tools", "version", "use", tool, version)

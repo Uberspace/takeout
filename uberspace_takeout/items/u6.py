@@ -15,8 +15,8 @@ class DomainItem(U6Mixin, TakeoutItem):
     def takeout(self):
         domains = self.run_command(["uberspace-list-domains", self.flag])
         domains = set(domains) - {
-            self.username + "." + self.hostname,
-            "*." + self.username + "." + self.hostname,
+            f"{self.username}.{self.hostname}",
+            f"*.{self.username}.{self.hostname}",
         }
         text = "\n".join(domains)
         self.storage.store_text(text, self.storage_path)

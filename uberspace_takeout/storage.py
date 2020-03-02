@@ -8,9 +8,7 @@ from io import BytesIO
 class Storage:
     def __init__(self, destination, mode):
         if mode not in ("takein", "takeout"):
-            raise Exception(
-                'Invalid mode {}, expected "takein" or "takeout".'.format(mode)
-            )
+            raise Exception(f"Invalid mode {mode}, expected 'takein' or 'takeout'.")
 
         self.destination = str(destination)
         self.mode = mode
@@ -55,9 +53,9 @@ class TarStorage(Storage):
     def _check_member_type(self, member):
         if member.type not in (tarfile.REGTYPE, tarfile.SYMTYPE, tarfile.DIRTYPE):
             raise Exception(
-                "tar member has illegal type: {}. "
+                f"tar member has illegal type: {member.name}. "
                 "Must be tarfile.REGTYPE/file, SYMTYPE/symlink or DIRTYPE/directory, "
-                "but is {}".format(member.name, member.type)
+                f"but is {member.type}"
             )
 
     def clone_tarinfo(self, tarinfo):
@@ -73,15 +71,15 @@ class TarStorage(Storage):
         for m in self.tar.getmembers():
             if ".." in m.name:
                 raise Exception(
-                    'tar member has illegal name (contains ".."): ' + m.name
+                    f"tar member has illegal name (contains '..'): {m.name}"
                 )
             if m.name.startswith("/"):
                 raise Exception(
-                    'tar member has illegal name (starts with "/"): ' + m.name
+                    f"tar member has illegal name (starts with '/'): {m.name}"
                 )
             if m.name.startswith("./"):
                 raise Exception(
-                    'tar member has illegal name (starts with "./"): ' + m.name
+                    f"tar member has illegal name (starts with './'): {m.name}"
                 )
 
             self._check_member_type(m)
@@ -115,9 +113,8 @@ class TarStorage(Storage):
             raise FileNotFoundError()
         if len(matching) > 1:
             raise Exception(
-                "There are {} files matching the path {}. Expected only one.".format(
-                    len(matching), path
-                )
+                f"There are {len(matching)} files matching the path {path}. "
+                "Expected only one."
             )
 
         return self.clone_tarinfo(matching[0])

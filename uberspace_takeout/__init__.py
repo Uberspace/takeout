@@ -45,10 +45,10 @@ class Takeout:
         with storage.TarStorage(tar_path, "takein") as stor:
             for item in self.get_items(username, stor):
                 if item.__class__.__name__ in skipped_items:
-                    print("skip: " + item.description)
+                    print(f"skip: {item.description}")
                     continue
 
-                print("takein: " + item.description)
+                print(f"takein: {item.description}")
                 try:
                     item.takein()
                 except TakeoutError as exc:
@@ -60,10 +60,10 @@ class Takeout:
         with storage.TarStorage(tar_path, "takeout") as stor:
             for item in self.get_items(username, stor):
                 if item.__class__.__name__ in skipped_items:
-                    print("skip: " + item.description)
+                    print(f"skip: {item.description}")
                     continue
 
-                print("takeout: " + item.description)
+                print(f"takeout: {item.description}")
                 try:
                     item.takeout()
                 except TakeoutError as exc:

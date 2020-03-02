@@ -2,11 +2,7 @@ import datetime
 import errno
 import os
 import tarfile
-
-try:
-    from BytesIO import BytesIO
-except ImportError:
-    from io import BytesIO
+from io import BytesIO
 
 
 class Storage:

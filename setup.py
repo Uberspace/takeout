@@ -13,7 +13,7 @@ from uberspace_takeout import __version__ as version
 setup(
     name="uberspace_takeout",
     version=version,
-    description="",
+    description="Import and export uberspaces to and from special ``.tar`` files.",
     author="uberspace.de",
     author_email="hallo@uberspace.de",
     url="https://github.com/uberspace/takeout",

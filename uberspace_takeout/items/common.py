@@ -61,7 +61,7 @@ class MySQLPassword(TakeoutItem):
 
     def _open_my_cnf(self, section):
         config = configparser.ConfigParser(interpolation=None)
-        config.read(self._my_cnf_path)
+        config.read(self._my_cnf_path, encoding="utf-8")
         return config
 
     def _read_my_cnf_password(self, section):

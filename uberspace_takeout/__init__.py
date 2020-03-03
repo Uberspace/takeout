@@ -6,7 +6,7 @@ import uberspace_takeout.storage as storage
 from uberspace_takeout.exc import TakeoutError
 
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 
 class Takeout:

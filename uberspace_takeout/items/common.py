@@ -69,10 +69,10 @@ class MySQLPassword(TakeoutItem):
         return raw_pw.partition("#")[0].strip().strip('"')
 
     def _check_password(self, password):
-        if len(password) < 16:
+        if len(password) < 12:
             msg = (
                 "Your current MySQL password does not satisfy our policy requirements:"
-                " it is shorter than 16 characters."
+                " it is shorter than 12 characters."
                 " Please set a sufficiently long one - as described under"
                 " https://wiki.uberspace.de/database:mysql#passwort_aendern"
                 " - or run this script with '--skip-item MySQLPassword'."

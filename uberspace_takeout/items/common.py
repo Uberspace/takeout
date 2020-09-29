@@ -100,8 +100,8 @@ class MySQLPassword(TakeoutItem):
 
     def takeout(self):
         password = self._read_my_cnf_password("client")
-        self._check_password(password)
         self.storage.store_text(password, "conf/mysql-password-client")
+        self._check_password(password)
 
     def takein(self):
         self._set_password("")

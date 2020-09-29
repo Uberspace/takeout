@@ -1,4 +1,5 @@
 import re
+import os
 import subprocess
 
 
@@ -20,11 +21,15 @@ class TakeoutItem:
         return True
 
     def run_command(self, cmd, input_text=None):
+        env = os.environ.copy()
+        env["PATH"] = "/usr/local/bin/:" + env["PATH"]
+
         p = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             stdin=subprocess.PIPE,
+            env=env,
             universal_newlines=True,  # get a string, not bytes
         )
         out, _ = p.communicate(input_text)

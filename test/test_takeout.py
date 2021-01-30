@@ -188,6 +188,7 @@ def test_takeout_u6_to_u7(fs, mock_run_command):
 
     mock_run_command.assert_called("uberspace web domain add example.com")
     mock_run_command.assert_called("uberspace web domain add foo.example.com")
+    mock_run_command.assert_called("uberspace web domain add ep.isabell.uber.space")
     mock_run_command.assert_called("uberspace mail domain add mail.example.com")
 
     mock_run_command.assert_called("crontab -", "@daily echo good morning\n")

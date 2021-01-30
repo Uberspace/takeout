@@ -8,6 +8,21 @@ class U7Mixin(UberspaceVersionMixin):
     uberspace_version = 7
 
 
+def convert_legacy_domain(domain):
+    """
+    convert legacy domains to new .uber.space ones, e.g.
+
+         luto.cygnus.uberspace.de   =>      luto.uber.space
+      ep.luto.cygnus.uberspace.de   =>   ep.luto.uber.space
+    """
+
+    if domain.endswith('.uberspace.de'):
+        # strip suffix off a full domain, e.g.
+        #   luto.cygnus.uberspace.de  =>  luto
+        domain = re.sub(r'\.[a-z]+\.uberspace\.de$', '', domain) + '.uber.space'
+
+    return domain
+
 class DomainItem(U7Mixin, TakeoutItem):
     area = None
 
@@ -25,6 +40,9 @@ class DomainItem(U7Mixin, TakeoutItem):
             if domain.startswith("*."):
                 print("cannot add wildcard domain on: " + domain)
                 continue
+            if domain.endswith('.uberspace.de'):
+                print("user.host.uberspace.de domains are not supported, rewriting to .uber.space")
+                domain = convert_legacy_domain(domain)
             self.run_uberspace(self.area, "domain", "add", domain)
 
 

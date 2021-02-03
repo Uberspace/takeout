@@ -23,6 +23,7 @@ class TakeoutItem:
     def run_command(self, cmd, input_text=None):
         env = os.environ.copy()
         env["PATH"] = "/usr/local/bin/:" + env["PATH"]
+        env.pop("SUDO_USER", None)
 
         p = subprocess.Popen(
             cmd,

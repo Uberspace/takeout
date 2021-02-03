@@ -1,3 +1,4 @@
+import os
 import re
 
 from .base import TakeoutItem
@@ -12,13 +13,16 @@ class DomainItem(U6Mixin, TakeoutItem):
     flag = None
     storage_path = None
 
-    def takeout(self):
+    def _find_domains(self):
         domains = self.run_command(["uberspace-list-domains", self.flag])
         domains = set(domains) - {
             self.username + "." + self.hostname,
             "*." + self.username + "." + self.hostname,
         }
-        text = "\n".join(domains)
+        return domains
+
+    def takeout(self):
+        text = "\n".join(self._find_domains())
         self.storage.store_text(text, self.storage_path)
 
     def takein(self):
@@ -32,6 +36,20 @@ class WebDomains(DomainItem):
     description = "Web Domains"
     flag = "-w"
     storage_path = "conf/domains-web"
+
+    def _find_domains(self):
+        domains = super()._find_domains()
+
+        try:
+            for candidate in os.listdir('/var/www/virtual/' + self.username):
+                if not re.search(r'\.[a-z0-9-]{2,}$', candidate):
+                    continue
+
+                domains.add(candidate)
+        except OSError:
+            pass
+
+        return domains
 
 
 class MailDomains(DomainItem):

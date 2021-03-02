@@ -37,6 +37,9 @@ class DomainItem(U7Mixin, TakeoutItem):
     def takein(self):
         text = self.storage.unstore_text(self.storage_path)
         for domain in (d for d in text.split("\n") if d):
+            if " " in domain:
+                domain, _, namespace = domain.partition(" ")
+                print("namespaced domains are not supported, stripping namespace: " + namespace)
             if domain.startswith("*."):
                 print("cannot add wildcard domain on: " + domain)
                 continue

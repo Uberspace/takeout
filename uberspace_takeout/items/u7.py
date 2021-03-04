@@ -41,8 +41,8 @@ class DomainItem(U7Mixin, TakeoutItem):
                 domain, _, namespace = domain.partition(" ")
                 print("namespaced domains are not supported, stripping namespace: " + namespace)
             if domain.startswith("*."):
-                print("cannot add wildcard domain on: " + domain)
-                continue
+                print("wildcard certs are not supported, adding subdomain www at least")
+                domain = "www" + domain[1:]
             if domain.endswith('.uberspace.de'):
                 print("user.host.uberspace.de domains are not supported, rewriting to .uber.space")
                 domain = convert_legacy_domain(domain)
